@@ -1,0 +1,824 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>執筆ワークスペース v0.1</title>
+<style>
+:root {
+  --bg:#f4f5f8;
+  --panel:#fff;
+  --text:#252a35;
+  --muted:#858b98;
+  --border:#e4e7ed;
+  --accent:#526da5;
+  --accent-bg:#eaf0fc;
+  --danger:#c74b4b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",
+  "Noto Sans JP",sans-serif;font-size:14px
+}
+button,input,textarea,select{font:inherit;color:inherit}
+button{
+  cursor:pointer;border:1px solid var(--border);
+  background:var(--panel);border-radius:7px;padding:7px 11px
+}
+button:hover{background:var(--accent-bg)}
+button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+button.danger{color:var(--danger)}
+input,textarea,select{
+  border:1px solid var(--border);border-radius:7px;
+  background:var(--panel);padding:9px;width:100%;outline:none
+}
+input:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical}
+header{
+  height:54px;background:var(--panel);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+  position:sticky;top:0;z-index:10
+}
+.brand{font-weight:700;font-size:15px}
+.version{color:var(--muted);font-size:11px;margin-left:8px}
+.header-actions{display:flex;gap:7px;align-items:center}
+.status{color:var(--muted);font-size:11px}
+.workspace{
+  height:calc(100vh - 54px);min-height:500px;
+  display:grid;grid-template-columns:210px minmax(300px,1fr) 290px;
+  gap:10px;padding:10px
+}
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:10px;min-height:0;overflow:hidden
+}
+.sidebar,.reference{display:flex;flex-direction:column}
+.panel-heading{
+  padding:13px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;font-weight:600
+}
+.panel-content{padding:12px;overflow:auto;min-height:0;flex:1}
+.episode{
+  padding:9px;border-radius:7px;cursor:pointer;
+  display:flex;justify-content:space-between;gap:5px;margin-bottom:4px
+}
+.episode:hover{background:var(--bg)}
+.episode.active{background:var(--accent-bg);color:var(--accent);font-weight:600}
+.episode small{color:var(--muted);font-weight:400}
+.editor{display:flex;flex-direction:column;min-width:0}
+.editor-toolbar{
+  display:flex;align-items:center;gap:8px;padding:12px;
+  border-bottom:1px solid var(--border)
+}
+.editor-toolbar input{font-weight:600;border:0;padding:5px}
+.editor-toolbar input:focus{border:1px solid var(--border)}
+.editor-body{flex:1;min-height:0;display:flex;flex-direction:column}
+#bodyText{
+  flex:1;min-height:200px;border:0;border-radius:0;
+  padding:28px;resize:none;line-height:1.95;font-size:16px;
+  font-family:"Yu Mincho","Hiragino Mincho ProN",serif
+}
+.editor-footer{
+  border-top:1px solid var(--border);padding:9px 13px;
+  display:flex;justify-content:space-between;color:var(--muted);font-size:11px
+}
+.reference-search{padding:10px;border-bottom:1px solid var(--border)}
+.setting-card{
+  border:1px solid var(--border);border-radius:8px;
+  padding:11px;margin-bottom:9px
+}
+.setting-card h3{margin:0 0 7px;font-size:14px}
+.setting-card p{white-space:pre-wrap;line-height:1.7;margin:0 0 5px}
+.setting-card small{color:var(--muted)}
+.setting-field{margin:8px 0}
+.setting-field label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+.setting-field textarea{min-height:65px}
+.empty{color:var(--muted);text-align:center;padding:25px 10px;font-size:12px}
+.tabs{display:flex;gap:5px;padding:10px;border-bottom:1px solid var(--border)}
+.tabs button{flex:1;font-size:12px}
+.tabs button.active{background:var(--accent-bg);color:var(--accent)}
+.modal-backdrop{
+  display:none;position:fixed;inset:0;background:#11182780;
+  z-index:20;align-items:center;justify-content:center;padding:16px
+}
+.modal-backdrop.show{display:flex}
+.modal{
+  background:var(--panel);border-radius:12px;width:min(680px,100%);
+  max-height:90vh;overflow:auto;padding:20px
+}
+.modal h2{font-size:18px;margin:0 0 15px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.form-row{margin:12px 0}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.preview-item{border-bottom:1px solid var(--border);padding:9px 0;font-size:12px}
+.preview-item mark{background:#fff0b7}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.small{font-size:11px;color:var(--muted)}
+.hidden{display:none!important}
+@media(max-width:900px){
+  .workspace{grid-template-columns:170px minmax(250px,1fr)}
+  .reference{display:none}
+}
+@media(max-width:600px){
+  .workspace{grid-template-columns:1fr;height:auto;min-height:calc(100vh - 54px)}
+  .sidebar{max-height:220px}
+  .editor{min-height:550px}
+  .header-actions .status{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <span class="brand">執筆ワークスペース</span>
+    <span class="version">v0.1</span>
+  </div>
+  <div class="header-actions">
+    <span id="saveStatus" class="status">保存済み</span>
+    <button onclick="openReplace()">一括変換</button>
+    <button onclick="openHistory()">履歴</button>
+    <button onclick="exportJSON()">JSON出力</button>
+    <button onclick="document.getElementById('importFile').click()">読み込み</button>
+    <input id="importFile" type="file" accept=".json" hidden onchange="importJSON(event)">
+  </div>
+</header>
+
+<div class="workspace">
+  <!-- 左：話一覧 -->
+  <aside class="panel sidebar">
+    <div class="panel-heading">
+      <span>本文・話一覧</span>
+      <button onclick="addEpisode()">＋</button>
+    </div>
+    <div class="panel-content" id="episodeList"></div>
+    <div style="padding:10px;border-top:1px solid var(--border)">
+      <button style="width:100%" onclick="exportTXT()">選択話をTXT出力</button>
+    </div>
+  </aside>
+
+  <!-- 中央：執筆画面 -->
+  <main class="panel editor">
+    <div class="editor-toolbar">
+      <input id="episodeTitle" placeholder="話のタイトル" oninput="updateTitle()">
+      <button onclick="duplicateEpisode()">複製</button>
+      <button class="danger" onclick="deleteEpisode()">削除</button>
+    </div>
+    <div class="editor-body">
+      <textarea id="bodyText" placeholder="ここから物語を書き始める…" oninput="updateBody()"></textarea>
+    </div>
+    <div class="editor-footer">
+      <span id="wordCount">0文字</span>
+      <span id="episodeStatus">執筆中</span>
+    </div>
+  </main>
+
+  <!-- 右：設定参照サブウィンドウ -->
+  <aside class="panel reference">
+    <div class="panel-heading">
+      <span>設定参照</span>
+      <button onclick="toggleReference()">閉じる</button>
+    </div>
+    <div class="reference-search">
+      <input id="settingSearch" placeholder="設定を検索…" oninput="renderReferences()">
+    </div>
+    <div class="panel-content" id="referenceResults"></div>
+    <div style="padding:10px;border-top:1px solid var(--border)">
+      <button style="width:100%" onclick="openSettings()">設定資料を管理</button>
+    </div>
+  </aside>
+</div>
+
+<!-- 一括変換 -->
+<div class="modal-backdrop" id="replaceModal">
+  <div class="modal">
+    <h2>一括変換</h2>
+    <div class="form-row">
+      <label>検索する文字列</label>
+      <input id="replaceFrom" placeholder="例：如月">
+    </div>
+    <div class="form-row">
+      <label>置換後の文字列</label>
+      <input id="replaceTo" placeholder="例：黒瀬">
+    </div>
+    <div class="form-row">
+      <label>置換対象</label>
+      <label><input type="checkbox" id="targetBody" checked style="width:auto"> 本文（全話）</label>
+      <label><input type="checkbox" id="targetSettings" checked style="width:auto"> 設定資料</label>
+      <label><input type="checkbox" id="targetNotes" checked style="width:auto"> メモ</label>
+    </div>
+    <button onclick="previewReplace()">変換プレビュー</button>
+    <div id="replacePreview" style="margin-top:12px"></div>
+    <div class="modal-actions">
+      <button onclick="closeModal('replaceModal')">キャンセル</button>
+      <button class="primary" id="applyReplaceButton" onclick="applyReplace()" disabled>一括置換</button>
+    </div>
+  </div>
+</div>
+
+<!-- 設定管理 -->
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal">
+    <h2>設定資料の管理</h2>
+    <div class="tabs">
+      <button class="active" id="tabCategories" onclick="showSettingTab('categories')">カテゴリ</button>
+      <button id="tabEntries" onclick="showSettingTab('entries')">資料一覧</button>
+    </div>
+    <div id="settingsContent"></div>
+    <div class="modal-actions">
+      <button onclick="closeModal('settingsModal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 履歴 -->
+<div class="modal-backdrop" id="historyModal">
+  <div class="modal">
+    <h2>原稿履歴</h2>
+    <p class="small">30分ごとの自動バックアップと手動バックアップ。最大5件を保持します。</p>
+    <button class="primary" onclick="manualBackup()">今すぐバックアップ</button>
+    <div id="historyList" style="margin-top:12px"></div>
+    <div class="modal-actions">
+      <button onclick="closeModal('historyModal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 復元確認 -->
+<div class="modal-backdrop" id="restoreModal">
+  <div class="modal">
+    <h2>履歴を復元しますか？</h2>
+    <p id="restoreMessage"></p>
+    <p class="small">現在の作品データを退避してから復元します。復元直前の状態にも戻せます。</p>
+    <div class="modal-actions">
+      <button onclick="closeModal('restoreModal')">キャンセル</button>
+      <button class="primary" onclick="confirmRestore()">復元する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "writing_workspace_v01";
+const HISTORY_KEY = "writing_workspace_history_v01";
+const SAFETY_KEY = "writing_workspace_restore_safety_v01";
+
+let data = loadData();
+let activeEpisode = data.episodes[0]?.id;
+let replacePlan = null;
+let restoreTarget = null;
+let settingsTab = "categories";
+let activeCategory = null;
+let activeEntry = null;
+let lastBackup = Date.now();
+
+function uid(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+}
+
+function initialData(){
+  return {
+    name:"新しい作品",
+    episodes:[{
+      id:uid(),title:"第1話",body:"",status:"執筆中",notes:""
+    }],
+    categories:[],
+    settings:[],
+    plot:"",
+    updatedAt:Date.now()
+  };
+}
+
+function loadData(){
+  try{
+    const saved=localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      const parsed=JSON.parse(saved);
+      if(parsed && Array.isArray(parsed.episodes)) return parsed;
+    }
+  }catch(e){}
+  return initialData();
+}
+
+function saveData(){
+  data.updatedAt=Date.now();
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+    document.getElementById("saveStatus").textContent="保存済み";
+  }catch(e){
+    document.getElementById("saveStatus").textContent="保存エラー";
+    alert("保存できませんでした。JSONバックアップを作成してください。");
+  }
+}
+
+let saveTimer;
+function scheduleSave(){
+  document.getElementById("saveStatus").textContent="保存中…";
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveData,400);
+}
+
+function currentEpisode(){
+  return data.episodes.find(e=>e.id===activeEpisode);
+}
+
+function renderEpisodes(){
+  const list=document.getElementById("episodeList");
+  list.innerHTML="";
+  data.episodes.forEach((ep,index)=>{
+    const div=document.createElement("div");
+    div.className="episode"+(ep.id===activeEpisode?" active":"");
+    div.innerHTML=`<span>${escapeHTML(ep.title||"無題")}</span><small>${countChars(ep.body)}</small>`;
+    div.onclick=()=>selectEpisode(ep.id);
+    list.appendChild(div);
+  });
+}
+
+function selectEpisode(id){
+  activeEpisode=id;
+  const ep=currentEpisode();
+  document.getElementById("episodeTitle").value=ep?.title||"";
+  document.getElementById("bodyText").value=ep?.body||"";
+  document.getElementById("episodeStatus").textContent=ep?.status||"執筆中";
+  updateWordCount();
+  renderEpisodes();
+}
+
+function addEpisode(){
+  const ep={id:uid(),title:"新しい話",body:"",status:"未着手",notes:""};
+  data.episodes.push(ep);
+  scheduleSave();
+  selectEpisode(ep.id);
+}
+
+function duplicateEpisode(){
+  const ep=currentEpisode();
+  if(!ep)return;
+  const copy={...ep,id:uid(),title:ep.title+"（複製）"};
+  const index=data.episodes.findIndex(e=>e.id===ep.id);
+  data.episodes.splice(index+1,0,copy);
+  scheduleSave();
+  selectEpisode(copy.id);
+}
+
+function deleteEpisode(){
+  const ep=currentEpisode();
+  if(!ep)return;
+  if(data.episodes.length===1){
+    alert("最後の1話は削除できません。");
+    return;
+  }
+  if(!confirm("「"+ep.title+"」を削除しますか？"))return;
+  data.episodes=data.episodes.filter(e=>e.id!==ep.id);
+  activeEpisode=data.episodes[0].id;
+  scheduleSave();
+  selectEpisode(activeEpisode);
+}
+
+function updateTitle(){
+  const ep=currentEpisode();
+  if(!ep)return;
+  ep.title=document.getElementById("episodeTitle").value;
+  renderEpisodes();
+  scheduleSave();
+}
+
+function updateBody(){
+  const ep=currentEpisode();
+  if(!ep)return;
+  ep.body=document.getElementById("bodyText").value;
+  updateWordCount();
+  renderEpisodes();
+  scheduleSave();
+}
+
+function updateWordCount(){
+  const ep=currentEpisode();
+  document.getElementById("wordCount").textContent=
+    countChars(ep?.body||"")+"文字";
+}
+
+function countChars(text){
+  return text.replace(/\r\n/g,"\n").length;
+}
+
+function escapeHTML(str){
+  return String(str).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function toggleReference(){
+  const ref=document.querySelector(".reference");
+  ref.classList.toggle("hidden");
+}
+
+function renderReferences(){
+  const query=document.getElementById("settingSearch").value.trim().toLowerCase();
+  const root=document.getElementById("referenceResults");
+  root.innerHTML="";
+  const entries=data.settings.filter(entry=>{
+    const category=data.categories.find(c=>c.id===entry.categoryId);
+    const text=(entry.title+" "+(category?.name||"")+" "+
+      entry.fields.map(f=>f.name+" "+f.value).join(" ")).toLowerCase();
+    return text.includes(query);
+  });
+  if(!entries.length){
+    root.innerHTML='<div class="empty">設定資料がありません</div>';
+    return;
+  }
+  entries.forEach(entry=>{
+    const category=data.categories.find(c=>c.id===entry.categoryId);
+    const card=document.createElement("div");
+    card.className="setting-card";
+    card.innerHTML=`<small>${escapeHTML(category?.name||"未分類")}</small>
+      <h3>${escapeHTML(entry.title)}</h3>
+      ${entry.fields.map(f=>`<p><small>${escapeHTML(f.name)}</small><br>${escapeHTML(f.value)}</p>`).join("")}`;
+    root.appendChild(card);
+  });
+}
+
+function openSettings(){
+  document.getElementById("settingsModal").classList.add("show");
+  showSettingTab("categories");
+}
+
+function showSettingTab(tab){
+  settingsTab=tab;
+  document.getElementById("tabCategories").classList.toggle("active",tab==="categories");
+  document.getElementById("tabEntries").classList.toggle("active",tab==="entries");
+  renderSettingsManager();
+}
+
+function renderSettingsManager(){
+  const root=document.getElementById("settingsContent");
+  root.innerHTML="";
+  if(settingsTab==="categories"){
+    const input=document.createElement("input");
+    input.placeholder="新しいカテゴリ名";
+    const button=document.createElement("button");
+    button.textContent="カテゴリ追加";
+    button.className="primary";
+    button.style.marginTop="8px";
+    button.onclick=()=>{
+      if(!input.value.trim())return;
+      data.categories.push({id:uid(),name:input.value.trim()});
+      scheduleSave();
+      renderSettingsManager();
+    };
+    root.append(input,button);
+    data.categories.forEach(cat=>{
+      const row=document.createElement("div");
+      row.className="history-item";
+      row.innerHTML=`<span>${escapeHTML(cat.name)}</span>`;
+      const edit=document.createElement("button");
+      edit.textContent="名前変更";
+      edit.onclick=()=>{
+        const name=prompt("カテゴリ名",cat.name);
+        if(name?.trim()){cat.name=name.trim();scheduleSave();renderSettingsManager();}
+      };
+      const del=document.createElement("button");
+      del.textContent="削除";
+      del.className="danger";
+      del.onclick=()=>{
+        if(!confirm("カテゴリを削除しますか？資料は未分類になります。"))return;
+        data.categories=data.categories.filter(c=>c.id!==cat.id);
+        data.settings.forEach(s=>{if(s.categoryId===cat.id)s.categoryId=null;});
+        scheduleSave();renderSettingsManager();
+      };
+      row.append(edit,del);
+      root.appendChild(row);
+    });
+  }else{
+    const catSelect=document.createElement("select");
+    catSelect.innerHTML='<option value="">カテゴリを選択</option>'+
+      data.categories.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join("");
+    const title=document.createElement("input");
+    title.placeholder="資料名";
+    title.style.marginTop="8px";
+    const add=document.createElement("button");
+    add.textContent="資料を追加";
+    add.className="primary";
+    add.style.marginTop="8px";
+    add.onclick=()=>{
+      if(!title.value.trim())return;
+      const entry={id:uid(),categoryId:catSelect.value||null,title:title.value.trim(),fields:[]};
+      data.settings.push(entry);
+      scheduleSave();
+      renderSettingsManager();
+    };
+    root.append(catSelect,title,add);
+    data.settings.forEach(entry=>{
+      const row=document.createElement("div");
+      row.className="history-item";
+      const name=document.createElement("span");
+      name.textContent=entry.title;
+      const edit=document.createElement("button");
+      edit.textContent="編集";
+      edit.onclick=()=>editSetting(entry.id);
+      const del=document.createElement("button");
+      del.textContent="削除";
+      del.className="danger";
+      del.onclick=()=>{
+        if(!confirm("資料を削除しますか？"))return;
+        data.settings=data.settings.filter(s=>s.id!==entry.id);
+        scheduleSave();renderSettingsManager();
+      };
+      row.append(name,edit,del);
+      root.appendChild(row);
+    });
+  }
+}
+
+function editSetting(id){
+  const entry=data.settings.find(s=>s.id===id);
+  if(!entry)return;
+  activeEntry=id;
+  const root=document.getElementById("settingsContent");
+  root.innerHTML="";
+  const title=document.createElement("input");
+  title.value=entry.title;
+  const cat=document.createElement("select");
+  cat.innerHTML='<option value="">未分類</option>'+
+    data.categories.map(c=>`<option value="${c.id}">${escapeHTML(c.name)}</option>`).join("");
+  cat.value=entry.categoryId||"";
+  root.append(title,cat);
+  const fieldsRoot=document.createElement("div");
+  root.appendChild(fieldsRoot);
+
+  function renderFields(){
+    fieldsRoot.innerHTML="";
+    entry.fields.forEach((field,index)=>{
+      const wrapper=document.createElement("div");
+      wrapper.className="setting-field";
+      const name=document.createElement("input");
+      name.value=field.name;
+      name.placeholder="項目名";
+      const value=document.createElement("textarea");
+      value.value=field.value;
+      value.placeholder="内容";
+      const del=document.createElement("button");
+      del.textContent="項目削除";
+      del.className="danger";
+      del.onclick=()=>{
+        entry.fields.splice(index,1);
+        renderFields();
+      };
+      name.oninput=()=>field.name=name.value;
+      value.oninput=()=>field.value=value.value;
+      wrapper.append(name,value,del);
+      fieldsRoot.appendChild(wrapper);
+    });
+  }
+  renderFields();
+  const add=document.createElement("button");
+  add.textContent="＋ 項目を追加";
+  add.onclick=()=>{
+    entry.fields.push({name:"",value:""});
+    renderFields();
+  };
+  const save=document.createElement("button");
+  save.textContent="保存";
+  save.className="primary";
+  save.style.marginLeft="8px";
+  save.onclick=()=>{
+    entry.title=title.value;
+    entry.categoryId=cat.value||null;
+    scheduleSave();
+    renderSettingsManager();
+    renderReferences();
+  };
+  root.append(add,save);
+}
+
+function openReplace(){
+  document.getElementById("replaceModal").classList.add("show");
+  document.getElementById("replacePreview").innerHTML="";
+  document.getElementById("applyReplaceButton").disabled=true;
+  replacePlan=null;
+}
+
+function previewReplace(){
+  const from=document.getElementById("replaceFrom").value;
+  const to=document.getElementById("replaceTo").value;
+  if(!from){
+    alert("検索する文字列を入力してください。");
+    return;
+  }
+  const plan=[];
+  let total=0;
+  const addPlan=(label,oldText,setter)=>{
+    const count=oldText.split(from).length-1;
+    if(count){
+      plan.push({label,oldText,newText:oldText.split(from).join(to),setter,count});
+      total+=count;
+    }
+  };
+  if(document.getElementById("targetBody").checked){
+    data.episodes.forEach(ep=>addPlan(ep.title,ep.body,v=>ep.body=v));
+  }
+  if(document.getElementById("targetSettings").checked){
+    data.settings.forEach(entry=>{
+      addPlan("設定："+entry.title,entry.title,v=>entry.title=v);
+      entry.fields.forEach(field=>{
+        addPlan("項目："+field.name,field.name,v=>field.name=v);
+        addPlan("内容："+field.name,field.value,v=>field.value=v);
+      });
+    });
+    data.categories.forEach(cat=>addPlan("カテゴリ："+cat.name,cat.name,v=>cat.name=v));
+  }
+  if(document.getElementById("targetNotes").checked){
+    data.episodes.forEach(ep=>addPlan("メモ："+ep.title,ep.notes||"",v=>ep.notes=v));
+    addPlan("プロット",data.plot||"",v=>data.plot=v);
+  }
+  replacePlan=plan;
+  const root=document.getElementById("replacePreview");
+  root.innerHTML=`<strong>合計 ${total} 件</strong>`;
+  plan.slice(0,20).forEach(item=>{
+    const div=document.createElement("div");
+    div.className="preview-item";
+    div.textContent=item.label+"："+item.count+"件";
+    root.appendChild(div);
+  });
+  if(plan.length>20){
+    const more=document.createElement("div");
+    more.className="small";
+    more.textContent="ほか "+(plan.length-20)+" 項目";
+    root.appendChild(more);
+  }
+  document.getElementById("applyReplaceButton").disabled=total===0;
+}
+
+let replaceUndo=null;
+
+function applyReplace(){
+  if(!replacePlan?.length)return;
+  if(!confirm("プレビューした内容を一括置換しますか？"))return;
+  replaceUndo=JSON.stringify(data);
+  replacePlan.forEach(item=>item.setter(item.newText));
+  scheduleSave();
+  renderEpisodes();
+  selectEpisode(activeEpisode);
+  renderReferences();
+  closeModal("replaceModal");
+  alert("一括置換が完了しました。取り消しは「一括変換」画面から行えます。");
+}
+
+function undoReplace(){
+  if(!replaceUndo)return;
+  data=JSON.parse(replaceUndo);
+  replaceUndo=null;
+  scheduleSave();
+  renderAll();
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  downloadBlob(blob,"writing-workspace.json");
+}
+
+function importJSON(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const imported=JSON.parse(reader.result);
+      if(!Array.isArray(imported.episodes)||!Array.isArray(imported.settings)){
+        throw new Error("形式が違います");
+      }
+      if(!confirm("現在の作品を読み込みデータで置き換えますか？"))return;
+      createBackup(true);
+      data=imported;
+      activeEpisode=data.episodes[0]?.id;
+      saveData();
+      renderAll();
+      alert("読み込みました。");
+    }catch(e){
+      alert("JSONを読み込めませんでした。");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value="";
+}
+
+function exportTXT(){
+  const ep=currentEpisode();
+  if(!ep)return;
+  const blob=new Blob([ep.body],{type:"text/plain;charset=utf-8"});
+  downloadBlob(blob,(ep.title||"本文")+".txt");
+}
+
+function downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;a.click();
+  URL.revokeObjectURL(url);
+}
+
+function getHistory(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");}
+  catch(e){return [];}
+}
+
+function createBackup(force=false){
+  const history=getHistory();
+  const snapshot={
+    id:uid(),
+    time:Date.now(),
+    label:new Date().toLocaleString("ja-JP"),
+    data:JSON.parse(JSON.stringify(data))
+  };
+  if(!force && history.length && JSON.stringify(history[0].data)===JSON.stringify(data))return;
+  history.unshift(snapshot);
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(history.slice(0,5)));
+  lastBackup=Date.now();
+}
+
+function manualBackup(){
+  createBackup(true);
+  renderHistory();
+  alert("バックアップを作成しました。");
+}
+
+function openHistory(){
+  document.getElementById("historyModal").classList.add("show");
+  renderHistory();
+}
+
+function renderHistory(){
+  const root=document.getElementById("historyList");
+  root.innerHTML="";
+  const history=getHistory();
+  if(!history.length){
+    root.innerHTML='<div class="empty">履歴はまだありません</div>';
+    return;
+  }
+  history.forEach(item=>{
+    const row=document.createElement("div");
+    row.className="history-item";
+    const info=document.createElement("div");
+    info.innerHTML=`<strong>${escapeHTML(item.label)}</strong><br><small>作品全体の保存データ</small>`;
+    const button=document.createElement("button");
+    button.textContent="復元";
+    button.onclick=()=>askRestore(item.id);
+    row.append(info,button);
+    root.appendChild(row);
+  });
+}
+
+function askRestore(id){
+  restoreTarget=id;
+  const item=getHistory().find(h=>h.id===id);
+  if(!item)return;
+  document.getElementById("restoreMessage").textContent=
+    item.label+" の作品データを復元します。";
+  document.getElementById("restoreModal").classList.add("show");
+}
+
+function confirmRestore(){
+  const item=getHistory().find(h=>h.id===restoreTarget);
+  if(!item)return;
+  localStorage.setItem(SAFETY_KEY,JSON.stringify({
+    time:Date.now(),data:JSON.parse(JSON.stringify(data))
+  }));
+  data=JSON.parse(JSON.stringify(item.data));
+  activeEpisode=data.episodes[0]?.id;
+  saveData();
+  renderAll();
+  closeModal("restoreModal");
+  closeModal("historyModal");
+  alert("履歴を復元しました。復元直前のデータは安全バックアップに保存されています。");
+}
+
+function renderAll(){
+  renderEpisodes();
+  selectEpisode(activeEpisode||data.episodes[0]?.id);
+  renderReferences();
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove("show");
+}
+
+document.addEventListener("keydown",event=>{
+  if((event.ctrlKey||event.metaKey)&&event.key==="s"){
+    event.preventDefault();
+    saveData();
+  }
+  if(event.key==="Escape"){
+    document.querySelectorAll(".modal-backdrop.show").forEach(m=>m.classList.remove("show"));
+  }
+});
+
+setInterval(()=>{
+  if(Date.now()-lastBackup>=30*60*1000){
+    createBackup();
+  }
+},60*1000);
+
+renderAll();
+</script>
+</body>
+</html>
