@@ -4,79 +4,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Write-novel</title>
+<meta name="theme-color" content="#f4efe6">
+<title>Write-novel v0.4</title>
 <style>
-:root{--bg:#f5f6f8;--panel:#fff;--text:#252833;--muted:#777d8c;--line:#e2e5eb;--accent:#5865d9;--soft:#eef0ff;--danger:#c94b55}
+:root{
+  --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
+  --muted:#8b8173;--line:#ded4c4;--accent:#69775b;--accent-dark:#4f5d43;
+  --soft:#e7ebdf;--danger:#a65b50;--shadow:0 3px 14px #51432b0b;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
-button,input,textarea{font:inherit}
-button{cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:8px;padding:8px 12px}
-button:hover{background:#f0f1f6}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif;font-size:14px}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--text);border-radius:7px;padding:8px 11px}
+button:hover{background:var(--panel)}
 button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+button.primary:hover{background:var(--accent-dark)}
 button.danger{color:var(--danger)}
-input,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:white;color:var(--text)}
+button.ghost{background:transparent;border-color:transparent}
+input,textarea,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--text);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 2px #69775b1c}
 textarea{resize:vertical}
 .hidden{display:none!important}
-.muted{font-size:12px;color:var(--muted)}
-.topbar{height:58px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
-.brand{font-size:19px;font-weight:750}.brand span{color:var(--accent)}
-main{max-width:1450px;margin:auto;padding:24px}
-.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
-h1{font-size:25px;margin:0 0 6px}h2{font-size:18px;margin:0}h3{font-size:14px;margin:0}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.card{background:white;border:1px solid var(--line);border-radius:12px;padding:17px;display:flex;flex-direction:column;gap:10px}
-.card h3{font-size:17px;overflow-wrap:anywhere}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}
-.empty{padding:30px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+.muted{color:var(--muted);font-size:12px}
+.small{font-size:12px}
+h1,h2,h3,p{margin-top:0}
+h1{font-size:24px;font-weight:650;letter-spacing:-.4px;margin-bottom:6px}
+h2{font-size:18px;font-weight:650;margin-bottom:0}
+h3{font-size:14px;font-weight:650;margin-bottom:0}
+.topbar{height:58px;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.brand{font-family:Georgia,serif;font-size:20px;font-weight:bold;letter-spacing:-.5px;color:var(--accent-dark)}
+.brand span{font-family:system-ui,sans-serif;font-size:10px;color:var(--muted);font-weight:500;letter-spacing:1px;margin-left:7px}
+#saveStatus{font-size:12px;color:var(--muted)}
+main{max-width:1500px;margin:auto;padding:25px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:15px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.card h3{font-family:Georgia,serif;font-size:18px;overflow-wrap:anywhere}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:9px;line-height:1.8}
 .workspace{height:calc(100vh - 58px);display:flex;flex-direction:column;min-height:500px}
-.toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:white;border-bottom:1px solid var(--line);padding:9px 13px}
+.toolbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:var(--paper);border-bottom:1px solid var(--line);padding:9px 13px}
+.toolbar button{font-size:12px;padding:7px 9px}
 .project-name{font-weight:700;margin-right:auto;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tabs{display:flex;gap:4px}.tab{border:0;background:transparent;color:var(--muted)}
-.tab.active{background:var(--soft);color:var(--accent);font-weight:700}
+.tabs{display:flex;gap:4px}
+.tab{border:0;background:transparent;color:var(--muted)}
+.tab.active{background:var(--soft);color:var(--accent-dark);font-weight:700}
 .editor-layout{display:grid;grid-template-columns:220px minmax(260px,1fr);gap:11px;padding:11px;flex:1;min-height:0;position:relative}
-.panel{background:white;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-height:0;box-shadow:var(--shadow)}
 .panel-head{padding:11px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .panel-body{padding:11px;overflow:auto;min-height:0}
 .episode-list{display:flex;flex-direction:column;gap:5px}
-.episode-item{display:flex;gap:4px}.episode-item button:first-child{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.selected{background:var(--soft);color:var(--accent);border-color:#d9ddff}
+.episode-item{display:flex;gap:4px}
+.episode-item button:first-child{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.selected{background:var(--soft);color:var(--accent-dark);border-color:#d5ddc9}
 .editor{display:flex;flex-direction:column;min-height:0}
-#episodeTitle{font-size:20px;font-weight:700;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:15px}
-#bodyEditor{flex:1;min-height:150px;border:0;border-radius:0;padding:20px;font-family:ui-serif,"Yu Mincho",serif;font-size:17px;line-height:1.9}
+#episodeTitle{font-size:20px;font-weight:700;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:15px;background:var(--paper)}
+#bodyEditor{flex:1;min-height:150px;border:0;border-radius:0;padding:20px;background:var(--paper);font-family:ui-serif,"Yu Mincho",serif;font-size:17px;line-height:1.95}
 .footer{padding:8px 13px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
-.reference-panel{position:absolute;right:11px;top:11px;bottom:11px;width:310px;z-index:3;box-shadow:0 8px 30px #0001}
-.reference-result{padding:10px;border:1px solid var(--line);border-radius:8px;margin:8px 0;cursor:pointer}
-.reference-result:hover{background:#f7f8fc}
+.reference-panel{position:absolute;right:11px;top:11px;bottom:11px;width:320px;z-index:3;box-shadow:0 8px 30px #453a2815}
+.reference-tabs{display:flex;gap:5px;align-items:center}
+.reference-tabs button{font-size:11px;padding:6px 8px}
+.reference-tabs button.active{background:var(--soft);color:var(--accent-dark);border-color:#d5ddc9}
+.reference-result{padding:10px;border:1px solid var(--line);border-radius:8px;margin:8px 0;cursor:pointer;background:var(--paper)}
+.reference-result:hover{background:var(--panel)}
 .reference-result strong{display:block;margin-bottom:4px}
-#referenceDetail{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;margin-top:12px}
+#referenceDetail,#referenceEpisodeBody{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.8;margin-top:12px}
+#referenceEpisodeBody{font-family:ui-serif,"Yu Mincho",serif}
 .settings-page{padding:16px;overflow:auto;flex:1}
-.settings-layout{display:grid;grid-template-columns:230px minmax(280px,1fr);gap:13px;max-width:1200px;margin:auto}
-.settings-box{background:white;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.settings-layout{display:grid;grid-template-columns:230px minmax(280px,1fr);gap:13px;max-width:1250px;margin:auto}
+.settings-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .category-button{display:block;width:100%;text-align:left;border:0;border-radius:0}
-.category-button.active{background:var(--soft);color:var(--accent)}
+.category-button.active{background:var(--soft);color:var(--accent-dark)}
 .entry-list{padding:10px}
-.entry-row{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px}
+.entry-row{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px}
 .entry-row button:first-child{flex:1;text-align:left;border:0;font-weight:600}
 .editor-form{padding:14px}
-.field{margin:12px 0}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
-.modal-bg{position:fixed;inset:0;background:#11182766;display:flex;align-items:center;justify-content:center;padding:15px;z-index:10}
-.modal{background:white;border-radius:12px;padding:20px;width:min(550px,100%);max-height:85vh;overflow:auto}
+.field{margin:12px 0}
+.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.memo-page{padding:22px;overflow:auto;flex:1}
+.memo-wrap{max-width:1000px;margin:auto}
+.memo-wrap textarea{min-height:35vh;line-height:1.8;font-family:ui-serif,"Yu Mincho",serif}
+.modal-bg{position:fixed;inset:0;background:#28251f66;display:flex;align-items:center;justify-content:center;padding:15px;z-index:20}
+.modal{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;width:min(650px,100%);max-height:88vh;overflow:auto;box-shadow:0 15px 50px #0002}
+.modal h2{margin-bottom:16px}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
-@media(max-width:800px){
- .editor-layout{grid-template-columns:160px minmax(200px,1fr)}
- .reference-panel{width:min(320px,90vw)}
+.modal-field{margin:12px 0}
+.modal-field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.result-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.search-hit{padding:10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.search-hit:hover{background:var(--panel)}
+.search-hit strong{display:block;margin-bottom:5px}
+.search-snippet{font-size:12px;color:var(--muted);line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+kbd{font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--panel)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:30;background:var(--accent-dark);color:white;padding:10px 15px;border-radius:8px;font-size:12px}
+mark{background:#e8dfb8;color:inherit}
+@media(max-width:850px){
+ .editor-layout{grid-template-columns:170px minmax(200px,1fr)}
+ .reference-panel{width:min(330px,90vw)}
 }
 @media(max-width:600px){
- main{padding:14px}.editor-layout{grid-template-columns:1fr;grid-template-rows:135px minmax(280px,1fr)}
- .episode-list{flex-direction:row;overflow:auto}.episode-item{min-width:150px}
+ main{padding:14px}
+ .editor-layout{grid-template-columns:1fr;grid-template-rows:135px minmax(280px,1fr)}
+ .episode-list{flex-direction:row;overflow:auto}
+ .episode-item{min-width:150px}
  .settings-layout{grid-template-columns:1fr}
  .workspace{height:calc(100vh - 58px)}
+ .toolbar{gap:5px}
+ .project-name{max-width:100px}
 }
 </style>
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">Write<span>-novel</span></div>
-  <div class="muted" id="saveStatus">保存済み</div>
+  <div class="brand">Write-novel <span>v0.4</span></div>
+  <div id="saveStatus">保存済み</div>
 </header>
 
 <main id="homeView">
@@ -94,12 +135,17 @@ h1{font-size:25px;margin:0 0 6px}h2{font-size:18px;margin:0}h3{font-size:14px;ma
     <div class="tabs">
       <button id="writingTab" class="tab active" onclick="switchTab('writing')">執筆</button>
       <button id="settingsTab" class="tab" onclick="switchTab('settings')">設定</button>
+      <button id="memoTab" class="tab" onclick="switchTab('memo')">メモ</button>
     </div>
-    <button id="referenceToggle" onclick="toggleReference()">設定検索</button>
+    <button id="referenceToggle" onclick="toggleReference()">参照パネル</button>
+    <button onclick="openGlobalSearch()">横断検索</button>
+    <button onclick="openBulkReplace()">一括置換</button>
+    <button onclick="openHistory()">履歴</button>
+    <button onclick="openShortcuts()">ショートカット</button>
     <button onclick="exportJSON()">JSON保存</button>
     <button onclick="exportTXT()">TXT保存</button>
     <button onclick="$('importFile').click()">JSON読込</button>
-    <input id="importFile" type="file" accept=".json" class="hidden">
+    <input id="importFile" type="file" accept=".json,application/json" class="hidden">
   </div>
 
   <div id="writingView" class="editor-layout">
@@ -110,15 +156,28 @@ h1{font-size:25px;margin:0 0 6px}h2{font-size:18px;margin:0}h3{font-size:14px;ma
     <section class="panel editor">
       <input id="episodeTitle" placeholder="エピソードタイトル">
       <textarea id="bodyEditor" placeholder="ここから執筆…" spellcheck="false"></textarea>
-      <div class="footer"><span id="wordCount">0文字</span><span>自動保存</span></div>
+      <div class="footer"><span id="wordCount">0文字</span><span id="episodeSaveStatus">自動保存</span></div>
     </section>
 
     <aside id="referencePanel" class="panel reference-panel hidden">
-      <div class="panel-head"><h3>設定検索</h3><button onclick="toggleReference(false)">×</button></div>
+      <div class="panel-head">
+        <div class="reference-tabs">
+          <button id="refSettingsTab" class="active" onclick="switchReferenceTab('settings')">設定検索</button>
+          <button id="refEpisodesTab" onclick="switchReferenceTab('episodes')">話を参照</button>
+        </div>
+        <button class="ghost" onclick="toggleReference(false)">×</button>
+      </div>
       <div class="panel-body">
-        <input id="referenceSearch" placeholder="設定名・内容を検索">
-        <div id="referenceResults"></div>
-        <div id="referenceDetail"></div>
+        <div id="referenceSettingsPane">
+          <input id="referenceSearch" placeholder="設定名・内容を検索">
+          <div id="referenceResults"></div>
+          <div id="referenceDetail"></div>
+        </div>
+        <div id="referenceEpisodesPane" class="hidden">
+          <select id="referenceEpisodeSelect"></select>
+          <h3 id="referenceEpisodeTitle" style="margin-top:12px">エピソード参照</h3>
+          <div id="referenceEpisodeBody" class="muted">別のエピソードを選択してください。</div>
+        </div>
       </div>
     </aside>
   </div>
@@ -139,101 +198,533 @@ h1{font-size:25px;margin:0 0 6px}h2{font-size:18px;margin:0}h3{font-size:14px;ma
       </section>
     </div>
   </section>
+
+  <section id="memoView" class="memo-page hidden">
+    <div class="memo-wrap">
+      <h2>執筆メモ</h2>
+      <p class="muted" style="margin:7px 0 18px">作品全体のアイデア、伏線、展開案など。</p>
+      <div class="field"><label>作品全体のメモ</label><textarea id="projectMemo" placeholder="物語全体についてのメモ…"></textarea></div>
+      <div class="field"><label id="episodeMemoLabel">エピソード別メモ</label><textarea id="episodeMemo" placeholder="このエピソードの修正予定や展開案…"></textarea></div>
+    </div>
+  </section>
 </section>
 
 <div id="modalRoot"></div>
+<div id="toastRoot"></div>
 
 <script>
 "use strict";
+
+/* v0.3の保存キーと作品構造を維持 */
 const KEY="write-novel-v03";
+const BACKUP_KEY="write-novel-v04-backup";
 let projects=load();
 let projectId=null,episodeId=null,categoryId=null,entryId=null;
-let saveTimer=null,referenceOpen=false;
+let saveTimer=null,referenceOpen=false,referenceTab="settings",referenceEpisodeId=null;
+let historyData={};
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(x)?x:[]}catch{return[]}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(projects));$("saveStatus").textContent="保存済み"}catch{$("saveStatus").textContent="保存失敗";alert("保存領域が不足しています。JSONバックアップを取ってください。")}}
-function scheduleSave(){ $("saveStatus").textContent="保存中…";clearTimeout(saveTimer);saveTimer=setTimeout(save,250);}
+const timestamp=()=>new Date().toISOString();
+
+function esc(s){
+ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function load(){
+ try{
+  const raw=JSON.parse(localStorage.getItem(KEY)||"[]");
+  if(Array.isArray(raw))return raw;
+  if(raw&&Array.isArray(raw.projects))return raw.projects;
+  return [];
+ }catch{return []}
+}
+function save(silent=false){
+ try{
+  localStorage.setItem(KEY,JSON.stringify(projects));
+  $("saveStatus").textContent="保存済み";
+  if($("episodeSaveStatus"))$("episodeSaveStatus").textContent="保存済み";
+ }catch{
+  $("saveStatus").textContent="保存失敗";
+  alert("保存領域が不足しています。JSONバックアップを取ってください。");
+ }
+}
+function scheduleSave(){
+ $("saveStatus").textContent="保存中…";
+ $("episodeSaveStatus").textContent="保存中…";
+ clearTimeout(saveTimer);
+ saveTimer=setTimeout(()=>save(true),300);
+}
 function p(){return projects.find(x=>x.id===projectId)}
 function ep(){return p()?.episodes.find(x=>x.id===episodeId)}
 function cat(){return p()?.categories.find(x=>x.id===categoryId)}
 function ent(){return cat()?.entries.find(x=>x.id===entryId)}
-function freshProject(name){return{id:uid(),name,createdAt:new Date().toISOString(),episodes:[{id:uid(),title:"第1話",body:"",notes:""}],categories:[{id:uid(),name:"人物",entries:[]},{id:uid(),name:"世界観",entries:[]}],plot:""}}
-
-function renderHome(){
- $("homeView").classList.remove("hidden");$("workspace").classList.add("hidden");
- $("projectGrid").innerHTML=projects.length?projects.map(x=>`
- <article class="card"><h3>${esc(x.name)}</h3><div class="muted">${x.episodes.length} エピソード</div>
- <div class="actions"><button class="primary" onclick="openProject('${x.id}')">開く</button><button onclick="renameProject('${x.id}')">名前変更</button><button class="danger" onclick="deleteProject('${x.id}')">削除</button></div></article>`).join(""):'<div class="empty">作品はまだありません。</div>';
+function freshProject(name){
+ return {
+  id:uid(),name,createdAt:timestamp(),
+  episodes:[{id:uid(),title:"第1話",body:"",notes:"",memo:""}],
+  categories:[{id:uid(),name:"人物",entries:[]},{id:uid(),name:"世界観",entries:[]}],
+  plot:"",memo:""
+ };
 }
-function createProject(){let n=prompt("作品名");if(!n?.trim())return;let x=freshProject(n.trim());projects.unshift(x);save();openProject(x.id);}
-function renameProject(id){let x=projects.find(a=>a.id===id);let n=prompt("作品名",x?.name);if(x&&n?.trim()){x.name=n.trim();save();renderHome();}}
-function deleteProject(id){let x=projects.find(a=>a.id===id);if(!x||!confirm(`「${x.name}」を削除しますか？`))return;projects=projects.filter(a=>a.id!==id);save();renderHome();}
-function openProject(id){
- projectId=id;let x=p();if(!x)return;
- if(!Array.isArray(x.episodes)||!x.episodes.length)x.episodes=[{id:uid(),title:"第1話",body:"",notes:""}];
+function normalizeProject(x){
+ if(!x||typeof x!=="object")return null;
+ x.id ||= uid();x.name ||= "無題の作品";
+ if(!Array.isArray(x.episodes))x.episodes=[];
  if(!Array.isArray(x.categories))x.categories=[];
- x.episodes.forEach(e=>{if(!e.id)e.id=uid();if(typeof e.body!=="string")e.body="";});
- x.categories.forEach(c=>{if(!c.id)c.id=uid();if(!Array.isArray(c.entries))c.entries=[];c.entries.forEach(e=>{if(!e.id)e.id=uid();if(!Array.isArray(e.fields))e.fields=[];});});
- episodeId=x.episodes[0].id;categoryId=x.categories[0]?.id||null;entryId=null;
- $("homeView").classList.add("hidden");$("workspace").classList.remove("hidden");
- $("projectName").textContent=x.name;switchTab("writing");renderEpisodes();loadEditor();renderCategories();renderReferences();toggleReference(false);
+ x.plot=typeof x.plot==="string"?x.plot:"";
+ x.memo=typeof x.memo==="string"?x.memo:"";
+ x.episodes.forEach(e=>{
+  e.id ||= uid();e.title??="無題";e.body=typeof e.body==="string"?e.body:"";
+  e.notes=typeof e.notes==="string"?e.notes:"";
+  e.memo=typeof e.memo==="string"?e.memo:e.notes;
+ });
+ x.categories.forEach(c=>{
+  c.id ||= uid();c.name ||= "その他";
+  if(!Array.isArray(c.entries))c.entries=[];
+  c.entries.forEach(e=>{
+   e.id ||= uid();e.title ||= "無題の設定";
+   if(!Array.isArray(e.fields))e.fields=[];
+   e.fields.forEach(f=>{f.name??="項目";f.value=typeof f.value==="string"?f.value:"";});
+  });
+ });
+ if(!x.episodes.length)x.episodes.push({id:uid(),title:"第1話",body:"",notes:"",memo:""});
+ return x;
 }
-function showHome(){saveEditor();projectId=null;renderHome();}
-function switchTab(t){$("writingView").classList.toggle("hidden",t!=="writing");$("settingsView").classList.toggle("hidden",t!=="settings");$("writingTab").classList.toggle("active",t==="writing");$("settingsTab").classList.toggle("active",t==="settings");if(t==="settings")renderCategories();}
-function saveEditor(){let e=ep();if(!e)return;e.title=$("episodeTitle").value;e.body=$("bodyEditor").value;$("wordCount").textContent=e.body.length+"文字";scheduleSave();}
-function loadEditor(){let e=ep();$("episodeTitle").value=e?.title||"";$("bodyEditor").value=e?.body||"";$("wordCount").textContent=$("bodyEditor").value.length+"文字";}
-$("episodeTitle").addEventListener("input",()=>{saveEditor();renderEpisodes()});
-$("bodyEditor").addEventListener("input",saveEditor);
-function renderEpisodes(){let x=p();if(!x)return;$("episodeList").innerHTML=x.episodes.map(e=>`<div class="episode-item"><button class="${e.id===episodeId?"selected":""}" onclick="selectEpisode('${e.id}')">${esc(e.title||"無題")}</button><button onclick="deleteEpisode('${e.id}')">×</button></div>`).join("");}
-function selectEpisode(id){saveEditor();episodeId=id;loadEditor();renderEpisodes();}
-function addEpisode(){saveEditor();let x=p(),e={id:uid(),title:`第${x.episodes.length+1}話`,body:"",notes:""};x.episodes.push(e);episodeId=e.id;loadEditor();renderEpisodes();scheduleSave();}
-function deleteEpisode(id){let x=p();if(x.episodes.length<2)return alert("最後のエピソードは削除できません。");if(!confirm("削除しますか？"))return;x.episodes=x.episodes.filter(e=>e.id!==id);if(episodeId===id)episodeId=x.episodes[0].id;loadEditor();renderEpisodes();scheduleSave();}
+function showToast(message){
+ $("toastRoot").innerHTML=`<div class="toast">${esc(message)}</div>`;
+ setTimeout(()=>{$("toastRoot").innerHTML="";},2400);
+}
 
-function addCategory(){let n=prompt("カテゴリ名");if(!n?.trim())return;let c={id:uid(),name:n.trim(),entries:[]};p().categories.push(c);categoryId=c.id;entryId=null;renderCategories();scheduleSave();}
-function renderCategories(){let x=p();if(!x)return;if(!x.categories.some(c=>c.id===categoryId))categoryId=x.categories[0]?.id||null;$("categoryList").innerHTML=x.categories.map(c=>`<button class="category-button ${c.id===categoryId?"active":""}" onclick="selectCategory('${c.id}')">${esc(c.name)} (${c.entries.length})</button>`).join("");renderEntryList();}
-function selectCategory(id){categoryId=id;entryId=null;renderCategories();}
-function addEntry(){let c=cat();if(!c)return alert("先にカテゴリを作成してください。");let e={id:uid(),title:"新しい設定",fields:[{name:"概要",value:""}]};c.entries.push(e);entryId=e.id;renderEntryList();renderEntryEditor();renderReferences();scheduleSave();}
-function renderEntryList(){let c=cat();$("settingsHeading").textContent=c?.name||"設定資料";$("entryEditor").classList.toggle("hidden",!entryId);if(!c){$("entryList").innerHTML='<div class="empty">カテゴリを作成してください。</div>';return;}
- $("entryList").innerHTML=c.entries.map(e=>`<div class="entry-row"><button onclick="selectEntry('${e.id}')">${esc(e.title||"無題")}</button><button onclick="deleteEntry('${e.id}')">×</button></div>`).join("")||'<div class="empty">資料はありません。</div>';
+/* ホーム／作品 */
+function renderHome(){
+ $("homeView").classList.remove("hidden");
+ $("workspace").classList.add("hidden");
+ $("projectGrid").innerHTML=projects.length?projects.map(x=>`
+  <article class="card">
+   <h3>${esc(x.name)}</h3>
+   <div class="muted">${x.episodes.length} エピソード</div>
+   <div class="muted">${x.categories.reduce((n,c)=>n+c.entries.length,0)} 設定資料</div>
+   <div class="actions">
+    <button class="primary" onclick="openProject('${x.id}')">開く</button>
+    <button onclick="renameProject('${x.id}')">名前変更</button>
+    <button class="danger" onclick="deleteProject('${x.id}')">削除</button>
+   </div>
+  </article>`).join(""):'<div class="empty">作品はまだありません。</div>';
 }
-function selectEntry(id){entryId=id;renderEntryList();renderEntryEditor();}
-function renderEntryEditor(){let e=ent();let box=$("entryEditor");if(!e){box.classList.add("hidden");box.innerHTML="";return;}box.classList.remove("hidden");
- box.innerHTML=`<div class="field"><label>設定名</label><input id="entryTitleInput" value="${esc(e.title)}"></div>
- <div id="fields">${e.fields.map((f,i)=>`<div class="field"><label>項目名</label><input data-i="${i}" data-k="name" value="${esc(f.name)}"><label>内容</label><textarea data-i="${i}" data-k="value" rows="4">${esc(f.value)}</textarea><button onclick="removeField(${i})">項目を削除</button></div>`).join("")}</div>
- <button onclick="addField()">＋ 項目を追加</button>`;
- $("entryTitleInput").addEventListener("input",ev=>{e.title=ev.target.value;renderEntryList();renderReferences();scheduleSave();});
- box.querySelectorAll("[data-i]").forEach(el=>el.addEventListener("input",ev=>{e.fields[+el.dataset.i][el.dataset.k]=el.value;renderReferences();scheduleSave();}));
+function createProject(){
+ showModal("新しい作品",`<div class="modal-field"><label>作品名</label><input id="newProjectName" placeholder="作品名を入力"></div>`,()=>{
+  const name=$("newProjectName").value.trim();if(!name)return false;
+  const x=freshProject(name);projects.unshift(x);save();openProject(x.id);
+ });
 }
-function addField(){let e=ent();if(!e)return;e.fields.push({name:"項目",value:""});renderEntryEditor();scheduleSave();}
-function removeField(i){let e=ent();if(!e)return;e.fields.splice(i,1);renderEntryEditor();scheduleSave();}
-function deleteEntry(id){let c=cat();if(!c||!confirm("資料を削除しますか？"))return;c.entries=c.entries.filter(e=>e.id!==id);entryId=null;renderEntryList();renderReferences();scheduleSave();}
+function renameProject(id){
+ const x=projects.find(a=>a.id===id);if(!x)return;
+ showModal("作品名変更",`<div class="modal-field"><label>作品名</label><input id="renameProjectInput" value="${esc(x.name)}"></div>`,()=>{
+  const name=$("renameProjectInput").value.trim();if(!name)return false;
+  x.name=name;save();renderHome();if(id===projectId)$("projectName").textContent=x.name;
+ });
+}
+function deleteProject(id){
+ const x=projects.find(a=>a.id===id);if(!x)return;
+ confirmAction(`「${x.name}」を削除しますか？`,()=>{
+  projects=projects.filter(a=>a.id!==id);save();renderHome();
+ });
+}
+function openProject(id){
+ saveEditor(false);
+ projectId=id;
+ const x=p();if(!x)return;
+ normalizeProject(x);
+ episodeId=x.episodes[0]?.id||null;
+ categoryId=x.categories[0]?.id||null;
+ entryId=null;referenceEpisodeId=null;
+ $("homeView").classList.add("hidden");
+ $("workspace").classList.remove("hidden");
+ $("projectName").textContent=x.name;
+ switchTab("writing");
+ renderEpisodes();loadEditor();renderCategories();renderReferences();renderMemo();
+ toggleReference(false);
+}
+function showHome(){saveEditor(false);renderHome();}
+function switchTab(tab){
+ $("writingView").classList.toggle("hidden",tab!=="writing");
+ $("settingsView").classList.toggle("hidden",tab!=="settings");
+ $("memoView").classList.toggle("hidden",tab!=="memo");
+ $("writingTab").classList.toggle("active",tab==="writing");
+ $("settingsTab").classList.toggle("active",tab==="settings");
+ $("memoTab").classList.toggle("active",tab==="memo");
+ if(tab==="settings")renderCategories();
+ if(tab==="memo")renderMemo();
+}
 
+/* エピソード */
+function saveEditor(autosave=true){
+ const e=ep();if(!e)return;
+ e.title=$("episodeTitle").value;
+ e.body=$("bodyEditor").value;
+ e.updatedAt=timestamp();
+ $("wordCount").textContent=e.body.length.toLocaleString()+"文字";
+ if(autosave)scheduleSave();
+}
+function loadEditor(){
+ const e=ep();
+ $("episodeTitle").value=e?.title||"";
+ $("bodyEditor").value=e?.body||"";
+ $("wordCount").textContent=($("bodyEditor").value.length).toLocaleString()+"文字";
+}
+$("episodeTitle").addEventListener("input",()=>{saveEditor();renderEpisodes();renderReferenceEpisodeOptions();});
+$("bodyEditor").addEventListener("input",()=>{saveEditor();});
+function renderEpisodes(){
+ const x=p();if(!x)return;
+ $("episodeList").innerHTML=x.episodes.map(e=>`
+  <div class="episode-item">
+   <button class="${e.id===episodeId?"selected":""}" onclick="selectEpisode('${e.id}')">${esc(e.title||"無題")}</button>
+   <button title="削除" onclick="deleteEpisode('${e.id}')">×</button>
+  </div>`).join("");
+}
+function selectEpisode(id){
+ saveEditor(false);episodeId=id;loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
+}
+function addEpisode(){
+ saveEditor(false);
+ const x=p(),e={id:uid(),title:`第${x.episodes.length+1}話`,body:"",notes:"",memo:""};
+ x.episodes.push(e);episodeId=e.id;loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
+}
+function deleteEpisode(id){
+ const x=p();if(x.episodes.length<2){showToast("最後のエピソードは削除できません");return;}
+ confirmAction("このエピソードを削除しますか？",()=>{
+  x.episodes=x.episodes.filter(e=>e.id!==id);
+  if(episodeId===id)episodeId=x.episodes[0].id;
+  loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
+ });
+}
+
+/* 参照パネル */
 function toggleReference(force){
  referenceOpen=typeof force==="boolean"?force:!referenceOpen;
  $("referencePanel").classList.toggle("hidden",!referenceOpen);
  if(referenceOpen)renderReferences();
 }
-$("referenceSearch").addEventListener("input",renderReferences);
-function renderReferences(){let x=p();if(!x)return;let q=$("referenceSearch").value.trim().toLowerCase(),hits=[];
- x.categories.forEach(c=>c.entries.forEach(e=>{let text=[c.name,e.title,...e.fields.flatMap(f=>[f.name,f.value])].join(" ");if(!q||text.toLowerCase().includes(q))hits.push({c,e});}));
- $("referenceResults").innerHTML=hits.map(h=>`<div class="reference-result" onclick="showReference('${h.e.id}')"><strong>${esc(h.e.title)}</strong><span class="muted">${esc(h.c.name)}</span></div>`).join("")||'<div class="muted">該当する設定はありません。</div>';
+function switchReferenceTab(tab){
+ referenceTab=tab;
+ $("refSettingsTab").classList.toggle("active",tab==="settings");
+ $("refEpisodesTab").classList.toggle("active",tab==="episodes");
+ $("referenceSettingsPane").classList.toggle("hidden",tab!=="settings");
+ $("referenceEpisodesPane").classList.toggle("hidden",tab!=="episodes");
+ if(tab==="episodes")renderReferenceEpisodeOptions();
 }
-function showReference(id){let e=p().categories.flatMap(c=>c.entries).find(e=>e.id===id);if(e)$("referenceDetail").textContent=e.title+"\n\n"+e.fields.map(f=>f.name+"\n"+f.value).join("\n\n");}
-
-function download(name,content,type){let a=document.createElement("a"),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);}
-function filename(s){return String(s||"novel").replace(/[\\/:*?"<>|]/g,"_");}
-function exportJSON(){saveEditor();download(filename(p().name)+".json",JSON.stringify(p(),null,2),"application/json");}
-function exportTXT(){saveEditor();download(filename(p().name)+".txt",p().episodes.map(e=>e.title+"\n\n"+e.body).join("\n\n"+"—".repeat(20)+"\n\n"),"text/plain;charset=utf-8");}
-$("importFile").addEventListener("change",async ev=>{
- let f=ev.target.files[0];if(!f)return;
- try{let x=JSON.parse(await f.text());if(!Array.isArray(x.episodes)||!Array.isArray(x.categories))throw Error("作品データの形式が違います。");
- x.id=uid();x.name=(x.name||f.name.replace(/\.json$/i,""))+"（読み込み）";x.createdAt=new Date().toISOString();
- x.episodes.forEach(e=>{if(!e.id)e.id=uid();});x.categories.forEach(c=>{if(!c.id)c.id=uid();c.entries.forEach(e=>{if(!e.id)e.id=uid();});});
- projects.unshift(x);save();openProject(x.id);
- }catch(err){alert("読み込みに失敗しました。\n"+err.message);}ev.target.value="";
+$("referenceSearch").addEventListener("input",renderReferences);
+function renderReferences(){
+ const x=p();if(!x)return;
+ const q=$("referenceSearch").value.trim().toLowerCase();
+ const hits=[];
+ x.categories.forEach(c=>c.entries.forEach(e=>{
+  const text=[c.name,e.title,...e.fields.flatMap(f=>[f.name,f.value])].join(" ");
+  if(!q||text.toLowerCase().includes(q))hits.push({c,e});
+ }));
+ $("referenceResults").innerHTML=hits.map(h=>`
+  <div class="reference-result" onclick="showReference('${h.e.id}')">
+   <strong>${esc(h.e.title)}</strong><span class="muted">${esc(h.c.name)}</span>
+  </div>`).join("")||'<div class="muted" style="margin-top:12px">該当する設定はありません。</div>';
+}
+function showReference(id){
+ const e=p().categories.flatMap(c=>c.entries).find(e=>e.id===id);if(!e)return;
+ $("referenceDetail").textContent=e.title+"\n\n"+e.fields.map(f=>f.name+"\n"+f.value).join("\n\n");
+}
+function renderReferenceEpisodeOptions(){
+ const x=p();if(!x)return;
+ const select=$("referenceEpisodeSelect");
+ const options=x.episodes.filter(e=>e.id!==episodeId);
+ select.innerHTML="";
+ if(!options.length){
+  select.innerHTML='<option value="">参照できる別エピソードがありません</option>';
+  referenceEpisodeId=null;$("referenceEpisodeTitle").textContent="エピソード参照";
+  $("referenceEpisodeBody").textContent="別のエピソードを作成すると、ここで参照できます。";
+  return;
+ }
+ if(!options.some(e=>e.id===referenceEpisodeId))referenceEpisodeId=options[0].id;
+ options.forEach(e=>{
+  const opt=document.createElement("option");opt.value=e.id;opt.textContent=e.title||"無題";select.appendChild(opt);
+ });
+ select.value=referenceEpisodeId;renderReferenceEpisode();
+}
+function renderReferenceEpisode(){
+ const e=p()?.episodes.find(e=>e.id===referenceEpisodeId);
+ if(!e)return;
+ $("referenceEpisodeTitle").textContent=e.title||"無題";
+ $("referenceEpisodeBody").textContent=e.body||"本文はまだありません。";
+}
+$("referenceEpisodeSelect").addEventListener("change",()=>{
+ referenceEpisodeId=$("referenceEpisodeSelect").value;renderReferenceEpisode();
 });
+
+/* 設定資料（v0.3のカテゴリ→資料→項目構造） */
+function addCategory(){
+ showModal("カテゴリ追加",`<div class="modal-field"><label>カテゴリ名</label><input id="newCategoryName" placeholder="カテゴリ名"></div>`,()=>{
+  const name=$("newCategoryName").value.trim();if(!name)return false;
+  if(p().categories.some(c=>c.name===name)){showToast("同名のカテゴリがあります");return false;}
+  const c={id:uid(),name,entries:[]};p().categories.push(c);categoryId=c.id;entryId=null;renderCategories();scheduleSave();
+ });
+}
+function renderCategories(){
+ const x=p();if(!x)return;
+ if(!x.categories.some(c=>c.id===categoryId))categoryId=x.categories[0]?.id||null;
+ $("categoryList").innerHTML=x.categories.map(c=>`
+  <button class="category-button ${c.id===categoryId?"active":""}" onclick="selectCategory('${c.id}')">
+   ${esc(c.name)} (${c.entries.length})
+  </button>`).join("")||'<div class="empty">カテゴリがありません。</div>';
+ renderEntryList();
+}
+function selectCategory(id){categoryId=id;entryId=null;renderCategories();}
+function addEntry(){
+ const c=cat();if(!c){showToast("先にカテゴリを作成してください");return;}
+ const e={id:uid(),title:"新しい設定",fields:[{name:"概要",value:""}]};
+ c.entries.push(e);entryId=e.id;renderEntryList();renderEntryEditor();renderReferences();scheduleSave();
+}
+function renderEntryList(){
+ const c=cat();$("settingsHeading").textContent=c?.name||"設定資料";
+ $("entryEditor").classList.toggle("hidden",!entryId);
+ if(!c){$("entryList").innerHTML='<div class="empty">カテゴリを作成してください。</div>';return;}
+ $("entryList").innerHTML=c.entries.map(e=>`
+  <div class="entry-row">
+   <button onclick="selectEntry('${e.id}')">${esc(e.title||"無題")}</button>
+   <button onclick="deleteEntry('${e.id}')">×</button>
+  </div>`).join("")||'<div class="empty">資料はありません。</div>';
+}
+function selectEntry(id){entryId=id;renderEntryList();renderEntryEditor();}
+function renderEntryEditor(){
+ const e=ent(),box=$("entryEditor");
+ if(!e){box.classList.add("hidden");box.innerHTML="";return;}
+ box.classList.remove("hidden");
+ box.innerHTML=`
+  <div class="field"><label>設定名</label><input id="entryTitleInput" value="${esc(e.title)}"></div>
+  <div id="fields">
+   ${e.fields.map((f,i)=>`
+    <div class="field">
+     <label>項目名</label><input data-i="${i}" data-k="name" value="${esc(f.name)}">
+     <label style="margin-top:7px">内容</label><textarea data-i="${i}" data-k="value" rows="4">${esc(f.value)}</textarea>
+     <button onclick="removeField(${i})">項目を削除</button>
+    </div>`).join("")}
+  </div>
+  <button onclick="addField()">＋ 項目を追加</button>
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+   <button class="danger" onclick="deleteEntry('${e.id}')">資料を削除</button>
+   <button class="primary" onclick="saveEntry()">保存</button>
+  </div>`;
+ $("entryTitleInput").addEventListener("input",ev=>{e.title=ev.target.value;renderEntryList();renderReferences();scheduleSave();});
+ box.querySelectorAll("[data-i]").forEach(el=>el.addEventListener("input",()=>{
+  e.fields[+el.dataset.i][el.dataset.k]=el.value;renderReferences();scheduleSave();
+ }));
+}
+function saveEntry(){
+ const e=ent();if(!e)return;
+ e.title=$("entryTitleInput").value.trim()||"無題の設定";
+ e.fields=[...$("entryEditor").querySelectorAll("[data-i][data-k='name']")].map((nameInput,i)=>{
+  const valueInput=$("entryEditor").querySelector(`[data-i="${i}"][data-k="value"]`);
+  return{name:nameInput.value,value:valueInput?.value||""};
+ });
+ renderEntryList();renderEntryEditor();renderReferences();scheduleSave();showToast("設定資料を保存しました");
+}
+function addField(){const e=ent();if(!e)return;e.fields.push({name:"項目",value:""});renderEntryEditor();scheduleSave();}
+function removeField(i){const e=ent();if(!e)return;e.fields.splice(i,1);renderEntryEditor();scheduleSave();}
+function deleteEntry(id){
+ const c=cat();if(!c)return;
+ confirmAction("この設定資料を削除しますか？",()=>{
+  c.entries=c.entries.filter(e=>e.id!==id);entryId=null;renderEntryList();renderEntryEditor();renderReferences();scheduleSave();
+ });
+}
+
+/* 執筆メモ */
+function renderMemo(){
+ const x=p(),e=ep();if(!x)return;
+ $("projectMemo").value=x.memo||x.plot||"";
+ $("episodeMemo").value=e?(e.memo||e.notes||""):"";
+ $("episodeMemo").disabled=!e;
+ $("episodeMemoLabel").textContent=e?`「${e.title||"無題"}」のメモ`:"エピソード別メモ";
+}
+$("projectMemo").addEventListener("input",()=>{
+ const x=p();if(!x)return;x.memo=$("projectMemo").value;x.plot=x.memo;scheduleSave();
+});
+$("episodeMemo").addEventListener("input",()=>{
+ const e=ep();if(!e)return;e.memo=$("episodeMemo").value;e.notes=e.memo;scheduleSave();
+});
+
+/* 横断検索 */
+function openGlobalSearch(){
+ showModal("エピソード横断検索",`
+  <div class="modal-field"><label>検索語</label><input id="globalQuery" placeholder="検索する文字列"></div>
+  <div class="modal-field"><label>検索対象</label>
+   <select id="globalScope"><option value="all">本文＋設定資料</option><option value="episodes">エピソード本文</option><option value="settings">設定資料</option></select>
+  </div>
+  <div id="globalResults" class="result-list"></div>`,()=>false,"閉じる");
+ const query=$("globalQuery"),scope=$("globalScope");
+ function run(){
+  const q=query.value.trim().toLowerCase(),x=p(),root=$("globalResults");root.innerHTML="";
+  if(!q)return;
+  const found=[];
+  if(scope.value!=="settings"){
+   x.episodes.forEach(e=>{
+    const pos=e.body.toLowerCase().indexOf(q);
+    if(pos>=0)found.push({kind:"本文",title:e.title,snippet:e.body.slice(Math.max(0,pos-65),Math.min(e.body.length,pos+q.length+100)),open:()=>{
+     episodeId=e.id;switchTab("writing");loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();$("modalRoot").innerHTML="";
+    }});
+   });
+  }
+  if(scope.value!=="episodes"){
+   x.categories.forEach(c=>c.entries.forEach(e=>{
+    const text=e.title+"\n"+e.fields.map(f=>f.name+"\n"+f.value).join("\n");
+    const pos=text.toLowerCase().indexOf(q);
+    if(pos>=0)found.push({kind:"設定",title:e.title,snippet:text.slice(Math.max(0,pos-65),Math.min(text.length,pos+q.length+100)),open:()=>{
+     categoryId=c.id;entryId=e.id;switchTab("settings");renderCategories();renderEntryEditor();$("modalRoot").innerHTML="";
+    }});
+   }));
+  }
+  if(!found.length){root.innerHTML='<div class="empty">該当箇所がありません。</div>';return;}
+  found.forEach(item=>{
+   const div=document.createElement("div");div.className="search-hit";
+   div.innerHTML=`<strong>${esc(item.kind)} ／ ${esc(item.title)}</strong><div class="search-snippet">${esc(item.snippet)}</div>`;
+   div.onclick=item.open;root.appendChild(div);
+  });
+ }
+ query.addEventListener("input",run);scope.addEventListener("change",run);query.focus();
+}
+
+/* 一括置換 */
+function openBulkReplace(){
+ showModal("一括置換",`
+  <div class="modal-field"><label>検索文字列</label><input id="replaceFind"></div>
+  <div class="modal-field"><label>置換後</label><input id="replaceTo"></div>
+  <div class="modal-field"><label>対象</label>
+   <select id="replaceScope"><option value="episodes">エピソード本文</option><option value="settings">設定資料</option><option value="all">本文＋設定資料</option></select>
+  </div>
+  <p class="muted">置換前にJSONバックアップを保存することをおすすめします。</p>`,()=>{
+  const find=$("replaceFind").value,to=$("replaceTo").value,scope=$("replaceScope").value,x=p();
+  if(!find){$("replaceFind").focus();return false;}
+  let count=0;
+  if(scope!=="settings")x.episodes.forEach(e=>{
+   const n=e.body.split(find).length-1;if(n){e.body=e.body.split(find).join(to);count+=n;}
+  });
+  if(scope!=="episodes")x.categories.forEach(c=>c.entries.forEach(e=>{
+   e.fields.forEach(f=>{const n=f.value.split(find).length-1;if(n){f.value=f.value.split(find).join(to);count+=n;}});
+  }));
+  save();loadEditor();renderEpisodes();renderCategories();renderReferences();showToast(count+"箇所を置換しました");
+ },"置換する");
+}
+
+/* 履歴：手動スナップショット */
+function openHistory(){
+ const e=ep();if(!e)return;
+ showModal("執筆履歴",`
+  <p class="muted">現在のエピソードの本文を履歴として保存できます。履歴はこのブラウザ内に保持されます。</p>
+  <button class="primary" id="makeSnapshot">現在の本文を保存</button>
+  <div id="historyList" class="result-list"></div>`,()=>false,"閉じる");
+ function render(){
+  const list=historyData[episodeId]||[];
+  $("historyList").innerHTML=list.slice().reverse().map(s=>`
+   <div class="search-hit"><strong>${esc(new Date(s.time).toLocaleString("ja-JP"))}</strong>
+   <div class="search-snippet">${esc(s.title)} ／ ${s.body.length}文字</div>
+   <button data-restore="${s.id}" style="margin-top:8px">復元</button></div>`).join("")||'<div class="empty">履歴がありません。</div>';
+  $("historyList").querySelectorAll("[data-restore]").forEach(btn=>btn.onclick=()=>{
+   const snap=list.find(s=>s.id===btn.dataset.restore);if(!snap)return;
+   confirmAction("この履歴を本文に復元しますか？",()=>{
+    const target=ep();target.title=snap.title;target.body=snap.body;
+    loadEditor();renderEpisodes();save();$("modalRoot").innerHTML="";showToast("履歴を復元しました");
+   });
+  });
+ }
+ $("makeSnapshot").onclick=()=>{
+  saveEditor(false);historyData[episodeId] ||= [];
+  historyData[episodeId].push({id:uid(),time:timestamp(),title:e.title,body:e.body});
+  historyData[episodeId]=historyData[episodeId].slice(-10);
+  try{localStorage.setItem(BACKUP_KEY,JSON.stringify(historyData));}catch{}
+  render();showToast("履歴を保存しました");
+ };
+ try{historyData=JSON.parse(localStorage.getItem(BACKUP_KEY)||"{}");}catch{historyData={};}
+ render();
+}
+
+/* JSON/TXTの入出力 */
+function download(name,content,type){
+ const a=document.createElement("a"),url=URL.createObjectURL(new Blob([content],{type}));
+ a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function filename(s){return String(s||"novel").replace(/[\\/:*?"<>|]/g,"_");}
+function exportJSON(){
+ saveEditor(false);
+ download(filename(p().name)+".json",JSON.stringify(p(),null,2),"application/json");
+}
+function exportTXT(){
+ saveEditor(false);
+ download(filename(p().name)+".txt",p().episodes.map(e=>e.title+"\n\n"+e.body).join("\n\n"+"—".repeat(20)+"\n\n"),"text/plain;charset=utf-8");
+}
+function exportFullBackup(){
+ saveEditor(false);
+ download("write-novel-backup.json",JSON.stringify({version:4,projects},null,2),"application/json");
+}
+$("importFile").addEventListener("change",async ev=>{
+ const file=ev.target.files[0];if(!file)return;
+ try{
+  const data=JSON.parse(await file.text());
+  let imported=[];
+  if(Array.isArray(data.episodes)&&Array.isArray(data.categories))imported=[data];
+  else if(Array.isArray(data.projects))imported=data.projects;
+  else if(Array.isArray(data))imported=data;
+  else throw Error("作品データの形式が違います。");
+  imported=imported.map(normalizeProject).filter(Boolean);
+  if(!imported.length)throw Error("読み込める作品がありません。");
+  confirmAction("読み込んだ作品を現在の作品一覧に追加しますか？",()=>{
+   imported.forEach(x=>{
+    x.id=uid();x.name=(x.name||file.name.replace(/\.json$/i,""))+"（読み込み）";
+   });
+   projects.unshift(...imported);save();renderHome();openProject(imported[0].id);
+   showToast("作品データを読み込みました");
+  });
+ }catch(err){alert("読み込みに失敗しました。\n"+err.message);}
+ ev.target.value="";
+});
+
+/* ダイアログ */
+function showModal(title,body,onSubmit,submitLabel="保存"){
+ const root=$("modalRoot");
+ root.innerHTML=`<div class="modal-bg"><div class="modal"><h2>${esc(title)}</h2><div id="modalBody">${body}</div>
+ <div class="modal-actions"><button id="modalCancel">キャンセル</button><button class="primary" id="modalSubmit">${esc(submitLabel)}</button></div></div></div>`;
+ $("modalCancel").onclick=()=>root.innerHTML="";
+ $("modalSubmit").onclick=()=>{if(onSubmit()!==false)root.innerHTML="";};
+ root.querySelector(".modal-bg").addEventListener("click",e=>{if(e.target.classList.contains("modal-bg"))root.innerHTML="";});
+}
+function confirmAction(message,callback){
+ showModal("確認",`<p>${esc(message)}</p>`,()=>callback(),"実行");
+}
+function openShortcuts(){
+ showModal("キーボードショートカット",`
+  <p class="muted">⌘（Command）＋⇧（Shift）を中心に設定しています。ブラウザやiPadOSの標準操作と競合する場合があります。</p>
+  <table style="width:100%;line-height:2.5">
+   <tr><td>保存</td><td><kbd>⌘</kbd> + <kbd>S</kbd></td></tr>
+   <tr><td>横断検索</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>F</kbd></td></tr>
+   <tr><td>新規エピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>Enter</kbd></td></tr>
+   <tr><td>前のエピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>↑</kbd></td></tr>
+   <tr><td>次のエピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>↓</kbd></td></tr>
+   <tr><td>参照パネル切替</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>R</kbd></td></tr>
+   <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>/</kbd></td></tr>
+  </table>`,()=>false,"閉じる");
+}
+function moveEpisode(delta){
+ const x=p(),i=x.episodes.findIndex(e=>e.id===episodeId),next=i+delta;
+ if(next<0||next>=x.episodes.length)return;
+ selectEpisode(x.episodes[next].id);
+}
+function handleShortcut(event){
+ if(!event.metaKey)return;
+ const key=event.key.toLowerCase();
+ if(key==="s"){event.preventDefault();saveEditor(false);save();showToast("保存しました");return;}
+ if(event.shiftKey&&key==="f"){event.preventDefault();openGlobalSearch();return;}
+ if(event.shiftKey&&key==="enter"){event.preventDefault();addEpisode();return;}
+ if(event.shiftKey&&event.key==="ArrowUp"){event.preventDefault();moveEpisode(-1);return;}
+ if(event.shiftKey&&event.key==="ArrowDown"){event.preventDefault();moveEpisode(1);return;}
+ if(event.shiftKey&&key==="r"){event.preventDefault();toggleReference();return;}
+ if(event.shiftKey&&(key==="/"||key==="?")){event.preventDefault();openShortcuts();}
+}
+document.addEventListener("keydown",handleShortcut);
+window.addEventListener("beforeunload",()=>{try{localStorage.setItem(KEY,JSON.stringify(projects));}catch{}});
 renderHome();
 </script>
 </body>
