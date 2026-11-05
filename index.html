@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4efe6">
-<title>Write-novel v0.4</title>
+<title>Write-novel v0.8</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -39,7 +38,7 @@ main{max-width:1500px;margin:auto;padding:25px}
 .head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:15px}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
-.card h3{font-family:Georgia,serif;font-size:18px;overflow-wrap:anywhere}
+.card h3{font-family:Georgia,serif;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}
 .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:9px;line-height:1.8}
 .workspace{height:calc(100vh - 58px);display:flex;flex-direction:column;min-height:500px}
@@ -116,7 +115,7 @@ mark{background:#e8dfb8;color:inherit}
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">Write-novel <span>v0.4</span></div>
+  <div class="brand">Write-novel <span>v0.8</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -300,7 +299,7 @@ function renderHome(){
  $("workspace").classList.add("hidden");
  $("projectGrid").innerHTML=projects.length?projects.map(x=>`
   <article class="card">
-   <h3>${esc(x.name)}</h3>
+   <h3 title="${esc(x.name)}">${esc(x.name)}</h3>
    <div class="muted">${x.episodes.length} エピソード</div>
    <div class="muted">${x.categories.reduce((n,c)=>n+c.entries.length,0)} 設定資料</div>
    <div class="actions">
@@ -555,7 +554,7 @@ function openGlobalSearch(){
   <div class="modal-field"><label>検索対象</label>
    <select id="globalScope"><option value="all">本文＋設定資料</option><option value="episodes">エピソード本文</option><option value="settings">設定資料</option></select>
   </div>
-  <div id="globalResults" class="result-list"></div>`,()=>false,"閉じる");
+  <div id="globalResults" class="result-list"></div>`,()=>false,null);
  const query=$("globalQuery"),scope=$("globalScope");
  function run(){
   const q=query.value.trim().toLowerCase(),x=p(),root=$("globalResults");root.innerHTML="";
@@ -616,7 +615,7 @@ function openHistory(){
  showModal("執筆履歴",`
   <p class="muted">現在のエピソードの本文を履歴として保存できます。履歴はこのブラウザ内に保持されます。</p>
   <button class="primary" id="makeSnapshot">現在の本文を保存</button>
-  <div id="historyList" class="result-list"></div>`,()=>false,"閉じる");
+  <div id="historyList" class="result-list"></div>`,()=>false,null);
  function render(){
   const list=historyData[episodeId]||[];
   $("historyList").innerHTML=list.slice().reverse().map(s=>`
@@ -686,9 +685,9 @@ $("importFile").addEventListener("change",async ev=>{
 function showModal(title,body,onSubmit,submitLabel="保存"){
  const root=$("modalRoot");
  root.innerHTML=`<div class="modal-bg"><div class="modal"><h2>${esc(title)}</h2><div id="modalBody">${body}</div>
- <div class="modal-actions"><button id="modalCancel">キャンセル</button><button class="primary" id="modalSubmit">${esc(submitLabel)}</button></div></div></div>`;
+ <div class="modal-actions"><button id="modalCancel">キャンセル</button>${submitLabel===null?"":`<button class="primary" id="modalSubmit">${esc(submitLabel)}</button>`}</div></div></div>`;
  $("modalCancel").onclick=()=>root.innerHTML="";
- $("modalSubmit").onclick=()=>{if(onSubmit()!==false)root.innerHTML="";};
+ if($("modalSubmit"))$("modalSubmit").onclick=()=>{if(onSubmit()!==false)root.innerHTML="";};
  root.querySelector(".modal-bg").addEventListener("click",e=>{if(e.target.classList.contains("modal-bg"))root.innerHTML="";});
 }
 function confirmAction(message,callback){
@@ -704,8 +703,8 @@ function openShortcuts(){
    <tr><td>前のエピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>↑</kbd></td></tr>
    <tr><td>次のエピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>↓</kbd></td></tr>
    <tr><td>参照パネル切替</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>R</kbd></td></tr>
-   <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>/</kbd></td></tr>
-  </table>`,()=>false,"閉じる");
+   <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
+  </table>`,()=>false,null);
 }
 function moveEpisode(delta){
  const x=p(),i=x.episodes.findIndex(e=>e.id===episodeId),next=i+delta;
@@ -721,7 +720,7 @@ function handleShortcut(event){
  if(event.shiftKey&&event.key==="ArrowUp"){event.preventDefault();moveEpisode(-1);return;}
  if(event.shiftKey&&event.key==="ArrowDown"){event.preventDefault();moveEpisode(1);return;}
  if(event.shiftKey&&key==="r"){event.preventDefault();toggleReference();return;}
- if(event.shiftKey&&(key==="/"||key==="?")){event.preventDefault();openShortcuts();}
+ if(event.shiftKey&&key==="k"){event.preventDefault();openShortcuts();}
 }
 document.addEventListener("keydown",handleShortcut);
 window.addEventListener("beforeunload",()=>{try{localStorage.setItem(KEY,JSON.stringify(projects));}catch{}});
