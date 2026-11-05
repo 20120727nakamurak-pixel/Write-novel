@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4efe6">
-<title>Write-novel v1.0</title>
+<title>Write-novel v1.1</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -39,6 +39,8 @@ main{max-width:1500px;margin:auto;padding:25px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:15px}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
 .card h3{font-family:Georgia,serif;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.card.guide-card{border-color:#cbd4bf;background:#fbfcf8}
+.guide-label{display:inline-flex;align-self:flex-start;padding:3px 8px;border-radius:20px;background:var(--soft);color:var(--accent-dark);font-size:11px}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}
 .empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:9px;line-height:1.8}
 .workspace{height:calc(100vh - 58px);display:flex;flex-direction:column;min-height:500px}
@@ -69,17 +71,36 @@ main{max-width:1500px;margin:auto;padding:25px}
 .reference-result strong{display:block;margin-bottom:4px}
 #referenceDetail,#referenceEpisodeBody{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.8;margin-top:12px}
 #referenceEpisodeBody{font-family:ui-serif,"Yu Mincho",serif}
+
+/* v1.1 設定画面 */
 .settings-page{padding:16px;overflow:auto;flex:1}
-.settings-layout{display:grid;grid-template-columns:230px minmax(280px,1fr);gap:13px;max-width:1250px;margin:auto}
+.settings-layout{display:grid;grid-template-columns:210px minmax(280px,1fr);gap:13px;max-width:1250px;margin:auto;align-items:start}
 .settings-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .category-button{display:block;width:100%;text-align:left;border:0;border-radius:0}
 .category-button.active{background:var(--soft);color:var(--accent-dark)}
-.entry-list{padding:10px}
-.entry-row{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px}
-.entry-row button:first-child{flex:1;text-align:left;border:0;font-weight:600}
-.editor-form{padding:14px}
+.category-list{padding:5px 0}
+.settings-main{min-width:0}
+.settings-main-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line)}
+.settings-main-head h2{font-size:17px}
+.entry-list{padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px}
+.entry-row{display:flex;align-items:center;gap:5px;padding:5px;border:1px solid var(--line);border-radius:8px;background:#fffefa;min-width:0}
+.entry-row.active{border-color:#b8c5aa;background:var(--soft)}
+.entry-row .entry-select{flex:1;min-width:0;text-align:left;border:0;background:transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.entry-row .entry-select:hover{background:transparent}
+.entry-row .entry-delete{flex:none;padding:5px 8px;color:var(--danger);border-color:transparent;background:transparent}
+.entry-editor{border-top:1px solid var(--line);padding:17px 18px;background:#fffefa}
+.entry-editor-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.entry-editor-top h3{font-size:14px}
+.editor-form{max-width:850px}
 .field{margin:12px 0}
 .field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.field textarea{min-height:95px;line-height:1.7}
+.setting-field{padding:13px 0;border-top:1px solid #eee7dc}
+.setting-field:first-child{border-top:0}
+.setting-field-actions{display:flex;justify-content:flex-end;margin-top:7px}
+.add-field-row{margin-top:13px}
+.entry-editor-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.settings-empty{padding:22px;text-align:center;color:var(--muted);font-size:13px;line-height:1.8}
 .memo-page{padding:22px;overflow:auto;flex:1}
 .memo-wrap{max-width:1000px;margin:auto}
 .memo-wrap textarea{min-height:35vh;line-height:1.8;font-family:ui-serif,"Yu Mincho",serif}
@@ -97,7 +118,13 @@ main{max-width:1500px;margin:auto;padding:25px}
 kbd{font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--panel)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:30;background:var(--accent-dark);color:white;padding:10px 15px;border-radius:8px;font-size:12px}
 mark{background:#e8dfb8;color:inherit}
-/* v1.0 オープニング */
+
+/* ガイド作品 */
+.guide-notice{padding:9px 13px;background:var(--soft);color:var(--accent-dark);font-size:12px;border-bottom:1px solid var(--line)}
+.guide-content{white-space:pre-wrap;overflow-wrap:anywhere}
+.guide-content h1,.guide-content h2,.guide-content h3{white-space:normal}
+
+/* v1.1 オープニング */
 .intro-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg);overflow:hidden}
 .intro-title{display:inline-block;font-family:Georgia,serif;font-size:clamp(34px,7vw,62px);font-weight:bold;letter-spacing:-1.5px;color:var(--accent-dark);white-space:nowrap;transform-origin:center center;will-change:transform,opacity}
 .intro-title::after{content:"";display:inline-block;width:2px;height:.88em;margin-left:5px;vertical-align:-.08em;background:var(--accent-dark);animation:intro-caret .8s steps(1,end) infinite}
@@ -109,6 +136,7 @@ mark{background:#e8dfb8;color:inherit}
 @media(max-width:850px){
  .editor-layout{grid-template-columns:170px minmax(200px,1fr)}
  .reference-panel{width:min(330px,90vw)}
+ .settings-layout{grid-template-columns:180px minmax(260px,1fr)}
 }
 @media(max-width:600px){
  main{padding:14px}
@@ -116,6 +144,10 @@ mark{background:#e8dfb8;color:inherit}
  .episode-list{flex-direction:row;overflow:auto}
  .episode-item{min-width:150px}
  .settings-layout{grid-template-columns:1fr}
+ .settings-category-box .category-list{display:flex;overflow:auto}
+ .settings-category-box .category-button{width:auto;white-space:nowrap}
+ .settings-main-head{align-items:flex-start}
+ .entry-list{grid-template-columns:1fr}
  .workspace{height:calc(100vh - 58px)}
  .toolbar{gap:5px}
  .project-name{max-width:100px}
@@ -123,15 +155,21 @@ mark{background:#e8dfb8;color:inherit}
 </style>
 </head>
 <body>
-<div id="introScreen" class="intro-screen" aria-label="Write-novel 起動中"><div id="introTitle" class="intro-title" aria-label="Write-novel"></div></div>
+<div id="introScreen" class="intro-screen" aria-label="Write-novel 起動中">
+  <div id="introTitle" class="intro-title" aria-label="Write-novel"></div>
+</div>
+
 <header class="topbar">
-  <div class="brand">Write-novel <span>v1.0</span></div>
+  <div class="brand">Write-novel <span>v1.1</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
 <main id="homeView">
   <div class="head">
-    <div><h1>作品ホーム</h1><div class="muted">作品を選んで執筆を始めよう。</div></div>
+    <div>
+      <h1>作品ホーム</h1>
+      <div class="muted">作品を選んで執筆を始めよう。</div>
+    </div>
     <button class="primary" onclick="createProject()">＋ 新しい作品</button>
   </div>
   <div id="projectGrid" class="grid"></div>
@@ -147,25 +185,38 @@ mark{background:#e8dfb8;color:inherit}
       <button id="memoTab" class="tab" onclick="switchTab('memo')">メモ</button>
     </div>
     <button id="referenceToggle" onclick="toggleReference()">参照パネル</button>
-    <button onclick="openGlobalSearch()">横断検索</button>
-    <button onclick="openBulkReplace()">一括置換</button>
-    <button onclick="openHistory()">履歴</button>
+    <button id="globalSearchButton" onclick="openGlobalSearch()">横断検索</button>
+    <button id="bulkReplaceButton" onclick="openBulkReplace()">一括置換</button>
+    <button id="historyButton" onclick="openHistory()">履歴</button>
     <button onclick="openShortcuts()">ショートカット</button>
-    <button onclick="exportJSON()">JSON保存</button>
-    <button onclick="exportTXT()">TXT保存</button>
-    <button onclick="$('importFile').click()">JSON読込</button>
+    <button id="exportJSONButton" onclick="exportJSON()">JSON保存</button>
+    <button id="exportTXTButton" onclick="exportTXT()">TXT保存</button>
+    <button id="importJSONButton" onclick="$('importFile').click()">JSON読込</button>
     <input id="importFile" type="file" accept=".json,application/json" class="hidden">
+  </div>
+
+  <div id="guideNotice" class="guide-notice hidden">
+    これはWrite-novelの使い方を紹介するガイド作品です。内容の編集・削除はできません。
   </div>
 
   <div id="writingView" class="editor-layout">
     <aside class="panel">
-      <div class="panel-head"><h3>エピソード</h3><button onclick="addEpisode()">＋</button></div>
-      <div class="panel-body"><div id="episodeList" class="episode-list"></div></div>
+      <div class="panel-head">
+        <h3>エピソード</h3>
+        <button id="addEpisodeButton" onclick="addEpisode()">＋</button>
+      </div>
+      <div class="panel-body">
+        <div id="episodeList" class="episode-list"></div>
+      </div>
     </aside>
+
     <section class="panel editor">
       <input id="episodeTitle" placeholder="エピソードタイトル">
       <textarea id="bodyEditor" placeholder="ここから執筆…" spellcheck="false"></textarea>
-      <div class="footer"><span id="wordCount">0文字</span><span id="episodeSaveStatus">自動保存</span></div>
+      <div class="footer">
+        <span id="wordCount">0文字</span>
+        <span id="episodeSaveStatus">自動保存</span>
+      </div>
     </section>
 
     <aside id="referencePanel" class="panel reference-panel hidden">
@@ -193,17 +244,21 @@ mark{background:#e8dfb8;color:inherit}
 
   <section id="settingsView" class="settings-page hidden">
     <div class="settings-layout">
-      <aside class="settings-box">
-        <div class="panel-head"><h3>カテゴリ</h3><button onclick="addCategory()">＋</button></div>
-        <div id="categoryList"></div>
-      </aside>
-      <section class="settings-box">
+      <aside class="settings-box settings-category-box">
         <div class="panel-head">
-          <h3 id="settingsHeading">設定資料</h3>
-          <button class="primary" onclick="addEntry()">＋ 資料を追加</button>
+          <h3>カテゴリ</h3>
+          <button id="addCategoryButton" onclick="addCategory()">＋</button>
+        </div>
+        <div id="categoryList" class="category-list"></div>
+      </aside>
+
+      <section class="settings-box settings-main">
+        <div class="settings-main-head">
+          <h2 id="settingsHeading">人物</h2>
+          <button id="addEntryButton" class="primary" onclick="addEntry()">＋ 資料を追加</button>
         </div>
         <div id="entryList" class="entry-list"></div>
-        <div id="entryEditor" class="editor-form hidden"></div>
+        <div id="entryEditor" class="entry-editor hidden"></div>
       </section>
     </div>
   </section>
@@ -212,8 +267,14 @@ mark{background:#e8dfb8;color:inherit}
     <div class="memo-wrap">
       <h2>執筆メモ</h2>
       <p class="muted" style="margin:7px 0 18px">作品全体のアイデア、伏線、展開案など。</p>
-      <div class="field"><label>作品全体のメモ</label><textarea id="projectMemo" placeholder="物語全体についてのメモ…"></textarea></div>
-      <div class="field"><label id="episodeMemoLabel">エピソード別メモ</label><textarea id="episodeMemo" placeholder="このエピソードの修正予定や展開案…"></textarea></div>
+      <div class="field">
+        <label>作品全体のメモ</label>
+        <textarea id="projectMemo" placeholder="物語全体についてのメモ…"></textarea>
+      </div>
+      <div class="field">
+        <label id="episodeMemoLabel">エピソード別メモ</label>
+        <textarea id="episodeMemo" placeholder="このエピソードの修正予定や展開案…"></textarea>
+      </div>
     </div>
   </section>
 </section>
@@ -224,28 +285,37 @@ mark{background:#e8dfb8;color:inherit}
 <script>
 "use strict";
 
-/* v0.3の保存キーと作品構造を維持 */
+/* 保存キーと既存の作品データ構造を維持 */
 const KEY="write-novel-v03";
 const BACKUP_KEY="write-novel-v04-backup";
+const GUIDE_ID="write-novel-guide-v11";
+
 let projects=load();
 let projectId=null,episodeId=null,categoryId=null,entryId=null;
 let saveTimer=null,referenceOpen=false,referenceTab="settings",referenceEpisodeId=null;
 let historyData={};
+
 const $=id=>document.getElementById(id);
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const timestamp=()=>new Date().toISOString();
 
 function esc(s){
- return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ return String(s??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
 }
+
 function load(){
  try{
   const raw=JSON.parse(localStorage.getItem(KEY)||"[]");
   if(Array.isArray(raw))return raw;
   if(raw&&Array.isArray(raw.projects))return raw.projects;
   return [];
- }catch{return []}
+ }catch{
+  return [];
+ }
 }
+
 function save(silent=false){
  try{
   localStorage.setItem(KEY,JSON.stringify(projects));
@@ -256,47 +326,386 @@ function save(silent=false){
   alert("保存領域が不足しています。JSONバックアップを取ってください。");
  }
 }
+
 function scheduleSave(){
+ if(isGuideProject())return;
  $("episodeSaveStatus").textContent="保存中…";
  clearTimeout(saveTimer);
  saveTimer=setTimeout(()=>save(true),300);
 }
+
 function p(){return projects.find(x=>x.id===projectId)}
 function ep(){return p()?.episodes.find(x=>x.id===episodeId)}
 function cat(){return p()?.categories.find(x=>x.id===categoryId)}
 function ent(){return cat()?.entries.find(x=>x.id===entryId)}
+function isGuideProject(){return projectId===GUIDE_ID}
+
+/* 新規作品 */
 function freshProject(name){
  return {
   id:uid(),name,createdAt:timestamp(),
   episodes:[{id:uid(),title:"第1話",body:"",notes:"",memo:""}],
-  categories:[{id:uid(),name:"人物",entries:[]},{id:uid(),name:"世界観",entries:[]}],
+  categories:[
+   {id:uid(),name:"人物",entries:[]},
+   {id:uid(),name:"世界観",entries:[]}
+  ],
   plot:"",memo:""
  };
 }
+
+/* v1.1 使い方ガイド */
+function createGuideProject(){
+ const chapters=[
+  {
+   title:"はじめに",
+   body:`Write-novelへようこそ。
+
+Write-novelは、小説の執筆と作品資料の管理をひとつにまとめたツールです。
+
+作品ごとにエピソードを書き、登場人物や世界観などの資料を整理し、必要な情報を執筆中に参照できます。
+
+このガイドでは、ホーム画面から執筆、設定資料、検索、保存まで、Write-novelの機能を順番に紹介します。
+
+【基本の使い方】
+
+1. ホーム画面で作品を作成する
+2. 執筆画面でエピソードを書く
+3. 設定画面で人物や世界観などの資料を登録する
+4. 必要に応じて参照パネルや検索を使う
+5. データをJSONなどで保存する
+
+入力した内容は、基本的にブラウザ内へ自動保存されます。
+
+※ブラウザのデータ削除や端末の変更に備えて、定期的にJSON保存を利用してください。`
+  },
+  {
+   title:"作品ホーム",
+   body:`作品ホームでは、作成した小説を一覧で管理できます。
+
+【新しい作品】
+
+画面右上の「＋ 新しい作品」を押し、作品名を入力すると新しい作品が作成されます。
+
+作成した作品には、最初から「第1話」と、初期カテゴリとして「人物」「世界観」が用意されています。
+
+【作品を開く】
+
+作品カードの「開く」を押すと、その作品の執筆画面へ移動します。
+
+【名前変更】
+
+「名前変更」から作品名を変更できます。作品の本文や資料はそのまま残ります。
+
+【削除】
+
+「削除」を押すと確認画面が表示されます。実行すると、その作品が現在のブラウザ内の一覧から削除されます。
+
+削除した作品を元に戻す機能はないため、必要な作品は事前にJSON保存しておきましょう。
+
+【使い方ガイド】
+
+ホーム画面にある「Write-novelの使い方」は、機能を説明するためのガイド作品です。通常の作品とは異なり、編集・削除できません。`
+  },
+  {
+   title:"執筆機能",
+   body:`作品を開くと、執筆画面が表示されます。
+
+【エピソード一覧】
+
+画面左側に、その作品のエピソードが一覧表示されます。
+
+エピソード名を押すと、その話の本文へ切り替わります。
+
+【新しいエピソード】
+
+一覧の「＋」ボタンを押すと、新しいエピソードが追加されます。
+
+【エピソードの削除】
+
+各エピソードの右側にある「×」を押すと削除できます。誤操作防止の確認画面が表示されます。
+
+最後に残った1話は削除できません。
+
+【タイトルと本文】
+
+画面上部の入力欄でエピソードタイトルを編集し、その下の大きな入力欄で本文を執筆します。
+
+【文字数】
+
+本文の文字数は、画面下部に表示されます。
+
+【自動保存】
+
+タイトルや本文を入力すると、自動保存が行われます。保存中・保存済みの状態は画面上部と本文欄の下部で確認できます。
+
+また、キーボードショートカットの保存操作も利用できます。`
+  },
+  {
+   title:"設定資料",
+   body:`設定画面では、作品に登場する人物や世界観などの情報を管理できます。
+
+【カテゴリ】
+
+画面左側にカテゴリが表示されます。
+
+最初から「人物」「世界観」が用意されています。「＋」ボタンから、組織・道具・地名など、好きなカテゴリを追加できます。
+
+【資料の追加】
+
+カテゴリを選択し、右側の「＋ 資料を追加」を押すと、新しい資料が追加されます。
+
+たとえば「人物」カテゴリなら、登場人物ごとに資料を作成できます。
+
+【資料一覧】
+
+登録した資料は、右側にカードとして並びます。カードを選ぶと、その資料の編集欄が表示されます。
+
+【設定名】
+
+資料そのものの名前です。人物資料ならキャラクター名、場所の資料なら地名などを入力します。
+
+【項目名と内容】
+
+ひとつの資料には、複数の項目を登録できます。
+
+例：
+項目名：年齢
+内容：17歳
+
+項目名：性格
+内容：慎重で口数が少ない
+
+「＋ 項目を追加」で項目を増やし、「項目を削除」で不要な項目を削除できます。
+
+【資料の削除】
+
+資料一覧カードの「×」から、資料そのものを削除できます。
+
+設定資料は参照パネルや横断検索からも探せます。`
+  },
+  {
+   title:"参照パネル",
+   body:`参照パネルは、執筆画面を開いたまま設定資料や別のエピソードを確認できる機能です。
+
+画面上部の「参照パネル」を押すと、画面右側にパネルが表示されます。
+
+【設定検索】
+
+「設定検索」タブでは、登録した設定資料を検索できます。
+
+設定名だけでなく、項目名や内容も検索対象です。
+
+検索結果を押すと、その資料の内容が表示されます。
+
+【話を参照】
+
+「話を参照」タブでは、現在開いている話以外のエピソードを選択して本文を確認できます。
+
+過去の展開や登場人物の発言を確認したいときに便利です。
+
+【閉じる】
+
+パネル右上の「×」を押すと閉じます。
+
+参照パネルは執筆画面上に重ねて表示されるため、本文を開いたまま資料を確認できます。`
+  },
+  {
+   title:"検索・置換",
+   body:`作品内の情報を探したり、文章をまとめて変更したりできます。
+
+【横断検索】
+
+画面上部の「横断検索」を押すと検索画面が開きます。
+
+検索語を入力すると、複数のエピソードや設定資料から該当する箇所を探します。
+
+検索対象は次の3種類です。
+
+・本文＋設定資料
+・エピソード本文
+・設定資料
+
+検索結果には、該当したエピソード名や設定名、前後の文章が表示されます。結果を押すと、その場所へ移動できます。
+
+【一括置換】
+
+「一括置換」では、指定した文字列を別の文字列にまとめて置き換えられます。
+
+検索文字列、置換後の文字列、対象範囲を指定して実行します。
+
+対象範囲は次の3種類です。
+
+・エピソード本文
+・設定資料
+・本文＋設定資料
+
+一括置換は複数箇所を一度に変更する操作です。実行前にJSON保存でバックアップを取っておくことをおすすめします。`
+  },
+  {
+   title:"履歴・バックアップ",
+   body:`Write-novelには、本文の履歴保存とデータの書き出し・読み込み機能があります。
+
+【履歴】
+
+画面上部の「履歴」を押すと、現在開いているエピソードの履歴画面が開きます。
+
+「現在の本文を保存」を押すと、その時点のタイトルと本文がスナップショットとして保存されます。
+
+履歴はブラウザ内に保存され、直近10件まで保持されます。
+
+保存した履歴の「復元」を押すと、確認後にその内容へ戻せます。
+
+履歴は自動で作成されるものではありません。残しておきたいタイミングで手動保存してください。
+
+【JSON保存】
+
+「JSON保存」は、現在開いている作品のデータを書き出します。
+
+エピソード、設定資料、メモなどを含む作品データを保存でき、あとからJSON読込で取り込めます。
+
+【TXT保存】
+
+「TXT保存」は、作品のエピソードタイトルと本文をテキストファイルとして書き出します。
+
+文章の確認や、別のテキストエディタでの利用に向いています。
+
+【JSON読込】
+
+「JSON読込」では、以前にJSON保存した作品データを読み込めます。
+
+読み込んだ作品は、現在の作品一覧に追加されます。元の作品一覧を置き換える操作ではありません。
+
+読み込んだ作品には「（読み込み）」という名前が付きます。
+
+【大切な注意】
+
+Write-novelのデータは、基本的に利用中のブラウザ内に保存されます。ブラウザのデータ削除や端末の故障などに備えて、JSONファイルを別の場所にも保管してください。`
+  },
+  {
+   title:"メモ機能",
+   body:`メモ画面では、作品全体のメモとエピソードごとのメモを管理できます。
+
+【作品全体のメモ】
+
+物語全体のアイデア、伏線、設定の検討、今後の展開などを書き留めておけます。
+
+【エピソード別メモ】
+
+現在選択しているエピソードに紐づいたメモです。
+
+その話の修正予定、追加したい描写、次の話につなげる内容などを記録できます。
+
+どちらも入力内容は自動保存されます。
+
+本文とは別の場所に考えを整理しておきたいときに利用してください。`
+  },
+  {
+   title:"ショートカット",
+   body:`キーボードを使うと、一部の操作を素早く実行できます。
+
+ショートカットはMacのCommandキー（⌘）を基準にしています。
+
+【一覧】
+
+保存
+⌘ + S
+
+横断検索
+⌘ + ⇧ + F
+
+新規エピソード
+⌘ + ⇧ + Enter
+
+前のエピソード
+⌘ + ⇧ + ↑
+
+次のエピソード
+⌘ + ⇧ + ↓
+
+参照パネル切替
+⌘ + ⇧ + R
+
+ショートカット一覧
+⌘ + ⇧ + K
+
+【補足】
+
+画面上部の「ショートカット」からも一覧を確認できます。
+
+ブラウザやOSの標準操作と競合する場合があります。その場合は画面上のボタンを利用してください。`
+  }
+ ];
+
+ return {
+  id:GUIDE_ID,
+  name:"Write-novelの使い方",
+  createdAt:timestamp(),
+  isGuide:true,
+  episodes:chapters.map(ch=>({
+   id:uid(),title:ch.title,body:ch.body,notes:"",memo:""
+  })),
+  categories:[],
+  plot:"",
+  memo:""
+ };
+}
+
+/* v1.1 ガイド作品を追加・維持 */
+function ensureGuideProject(){
+ const index=projects.findIndex(x=>x.id===GUIDE_ID);
+ if(index===-1){
+  projects.unshift(createGuideProject());
+ }else{
+  const existing=projects[index];
+  const guide=createGuideProject();
+  guide.createdAt=existing.createdAt||timestamp();
+  projects[index]=guide;
+  if(index!==0){
+   projects.splice(index,1);
+   projects.unshift(guide);
+  }
+ }
+}
+
+/* 既存データの補完 */
 function normalizeProject(x){
  if(!x||typeof x!=="object")return null;
- x.id ||= uid();x.name ||= "無題の作品";
+ x.id ||= uid();
+ x.name ||= "無題の作品";
  if(!Array.isArray(x.episodes))x.episodes=[];
  if(!Array.isArray(x.categories))x.categories=[];
  x.plot=typeof x.plot==="string"?x.plot:"";
  x.memo=typeof x.memo==="string"?x.memo:"";
+
  x.episodes.forEach(e=>{
-  e.id ||= uid();e.title??="無題";e.body=typeof e.body==="string"?e.body:"";
+  e.id ||= uid();
+  e.title??="無題";
+  e.body=typeof e.body==="string"?e.body:"";
   e.notes=typeof e.notes==="string"?e.notes:"";
   e.memo=typeof e.memo==="string"?e.memo:e.notes;
  });
+
  x.categories.forEach(c=>{
-  c.id ||= uid();c.name ||= "その他";
+  c.id ||= uid();
+  c.name ||= "その他";
   if(!Array.isArray(c.entries))c.entries=[];
   c.entries.forEach(e=>{
-   e.id ||= uid();e.title ||= "無題の設定";
+   e.id ||= uid();
+   e.title ||= "無題の設定";
    if(!Array.isArray(e.fields))e.fields=[];
-   e.fields.forEach(f=>{f.name??="項目";f.value=typeof f.value==="string"?f.value:"";});
+   e.fields.forEach(f=>{
+    f.name??="項目";
+    f.value=typeof f.value==="string"?f.value:"";
+   });
   });
  });
- if(!x.episodes.length)x.episodes.push({id:uid(),title:"第1話",body:"",notes:"",memo:""});
+
+ if(!x.episodes.length){
+  x.episodes.push({id:uid(),title:"第1話",body:"",notes:"",memo:""});
+ }
  return x;
 }
+
 function showToast(message){
  $("toastRoot").innerHTML=`<div class="toast">${esc(message)}</div>`;
  setTimeout(()=>{$("toastRoot").innerHTML="";},2400);
@@ -306,103 +715,234 @@ function showToast(message){
 function renderHome(){
  $("homeView").classList.remove("hidden");
  $("workspace").classList.add("hidden");
- $("projectGrid").innerHTML=projects.length?projects.map(x=>`
-  <article class="card">
-   <h3 title="${esc(x.name)}">${esc(x.name)}</h3>
-   <div class="muted">${x.episodes.length} エピソード</div>
-   <div class="muted">${x.categories.reduce((n,c)=>n+c.entries.length,0)} 設定資料</div>
-   <div class="actions">
-    <button class="primary" onclick="openProject('${x.id}')">開く</button>
-    <button onclick="renameProject('${x.id}')">名前変更</button>
-    <button class="danger" onclick="deleteProject('${x.id}')">削除</button>
-   </div>
-  </article>`).join(""):'<div class="empty">作品はまだありません。</div>';
+
+ $("projectGrid").innerHTML=projects.length?projects.map(x=>{
+  const guide=x.id===GUIDE_ID;
+  return `
+   <article class="card ${guide?"guide-card":""}">
+    ${guide?'<span class="guide-label">使い方ガイド</span>':""}
+    <h3 title="${esc(x.name)}">${esc(x.name)}</h3>
+    <div class="muted">${x.episodes.length} エピソード</div>
+    <div class="muted">${x.categories.reduce((n,c)=>n+c.entries.length,0)} 設定資料</div>
+    <div class="actions">
+     <button class="primary" onclick="openProject('${x.id}')">開く</button>
+     ${guide?"":`
+      <button onclick="renameProject('${x.id}')">名前変更</button>
+      <button class="danger" onclick="deleteProject('${x.id}')">削除</button>
+     `}
+    </div>
+   </article>`;
+ }).join(""):'<div class="empty">作品はまだありません。</div>';
 }
+
 function createProject(){
- showModal("新しい作品",`<div class="modal-field"><label>作品名</label><input id="newProjectName" placeholder="作品名を入力"></div>`,()=>{
-  const name=$("newProjectName").value.trim();if(!name)return false;
-  const x=freshProject(name);projects.unshift(x);save();openProject(x.id);
+ showModal("新しい作品",`
+  <div class="modal-field">
+   <label>作品名</label>
+   <input id="newProjectName" placeholder="作品名を入力">
+  </div>`,()=>{
+  const name=$("newProjectName").value.trim();
+  if(!name)return false;
+  const x=freshProject(name);
+  projects.unshift(x);
+  save();
+  openProject(x.id);
  });
 }
+
 function renameProject(id){
- const x=projects.find(a=>a.id===id);if(!x)return;
- showModal("作品名変更",`<div class="modal-field"><label>作品名</label><input id="renameProjectInput" value="${esc(x.name)}"></div>`,()=>{
-  const name=$("renameProjectInput").value.trim();if(!name)return false;
-  x.name=name;save();renderHome();if(id===projectId)$("projectName").textContent=x.name;
+ if(id===GUIDE_ID)return;
+ const x=projects.find(a=>a.id===id);
+ if(!x)return;
+
+ showModal("作品名変更",`
+  <div class="modal-field">
+   <label>作品名</label>
+   <input id="renameProjectInput" value="${esc(x.name)}">
+  </div>`,()=>{
+  const name=$("renameProjectInput").value.trim();
+  if(!name)return false;
+  x.name=name;
+  save();
+  renderHome();
+  if(id===projectId)$("projectName").textContent=x.name;
  });
 }
+
 function deleteProject(id){
- const x=projects.find(a=>a.id===id);if(!x)return;
+ if(id===GUIDE_ID)return;
+ const x=projects.find(a=>a.id===id);
+ if(!x)return;
+
  confirmAction(`「${x.name}」を削除しますか？`,()=>{
-  projects=projects.filter(a=>a.id!==id);save();renderHome();
+  projects=projects.filter(a=>a.id!==id);
+  save();
+  renderHome();
  });
 }
+
+function setGuideMode(){
+ const guide=isGuideProject();
+
+ $("guideNotice").classList.toggle("hidden",!guide);
+ $("addEpisodeButton").classList.toggle("hidden",guide);
+ $("addCategoryButton").classList.toggle("hidden",guide);
+ $("addEntryButton").classList.toggle("hidden",guide);
+
+ $("globalSearchButton").classList.toggle("hidden",guide);
+ $("bulkReplaceButton").classList.toggle("hidden",guide);
+ $("historyButton").classList.toggle("hidden",guide);
+ $("exportJSONButton").classList.toggle("hidden",guide);
+ $("exportTXTButton").classList.toggle("hidden",guide);
+ $("importJSONButton").classList.toggle("hidden",guide);
+
+ $("episodeTitle").readOnly=guide;
+ $("bodyEditor").readOnly=guide;
+ $("projectMemo").readOnly=guide;
+ $("episodeMemo").readOnly=guide;
+
+ $("episodeTitle").placeholder=guide?"ガイドのタイトル":"エピソードタイトル";
+ $("bodyEditor").placeholder=guide?"":"ここから執筆…";
+}
+
 function openProject(id){
  saveEditor(false);
  projectId=id;
- const x=p();if(!x)return;
+
+ const x=p();
+ if(!x)return;
+
  normalizeProject(x);
  episodeId=x.episodes[0]?.id||null;
  categoryId=x.categories[0]?.id||null;
- entryId=null;referenceEpisodeId=null;
+ entryId=null;
+ referenceEpisodeId=null;
+
  $("homeView").classList.add("hidden");
  $("workspace").classList.remove("hidden");
  $("projectName").textContent=x.name;
+
+ setGuideMode();
  switchTab("writing");
- renderEpisodes();loadEditor();renderCategories();renderReferences();renderMemo();
+ renderEpisodes();
+ loadEditor();
+ renderCategories();
+ renderReferences();
+ renderMemo();
  toggleReference(false);
 }
-function showHome(){saveEditor(false);renderHome();}
+
+function showHome(){
+ saveEditor(false);
+ save();
+ renderHome();
+}
+
 function switchTab(tab){
  $("writingView").classList.toggle("hidden",tab!=="writing");
  $("settingsView").classList.toggle("hidden",tab!=="settings");
  $("memoView").classList.toggle("hidden",tab!=="memo");
+
  $("writingTab").classList.toggle("active",tab==="writing");
  $("settingsTab").classList.toggle("active",tab==="settings");
  $("memoTab").classList.toggle("active",tab==="memo");
+
  if(tab==="settings")renderCategories();
  if(tab==="memo")renderMemo();
 }
 
 /* エピソード */
 function saveEditor(autosave=true){
- const e=ep();if(!e)return;
+ if(isGuideProject())return;
+ const e=ep();
+ if(!e)return;
+
  e.title=$("episodeTitle").value;
  e.body=$("bodyEditor").value;
  e.updatedAt=timestamp();
+
  $("wordCount").textContent=e.body.length.toLocaleString()+"文字";
  if(autosave)scheduleSave();
 }
+
 function loadEditor(){
  const e=ep();
  $("episodeTitle").value=e?.title||"";
  $("bodyEditor").value=e?.body||"";
  $("wordCount").textContent=($("bodyEditor").value.length).toLocaleString()+"文字";
 }
-$("episodeTitle").addEventListener("input",()=>{saveEditor();renderEpisodes();renderReferenceEpisodeOptions();});
-$("bodyEditor").addEventListener("input",()=>{saveEditor();});
+
+$("episodeTitle").addEventListener("input",()=>{
+ saveEditor();
+ renderEpisodes();
+ renderReferenceEpisodeOptions();
+});
+
+$("bodyEditor").addEventListener("input",()=>saveEditor());
+
 function renderEpisodes(){
- const x=p();if(!x)return;
+ const x=p();
+ if(!x)return;
+
  $("episodeList").innerHTML=x.episodes.map(e=>`
   <div class="episode-item">
-   <button class="${e.id===episodeId?"selected":""}" onclick="selectEpisode('${e.id}')">${esc(e.title||"無題")}</button>
-   <button title="削除" onclick="deleteEpisode('${e.id}')">×</button>
+   <button class="${e.id===episodeId?"selected":""}" onclick="selectEpisode('${e.id}')">
+    ${esc(e.title||"無題")}
+   </button>
+   ${isGuideProject()?"":`
+    <button title="削除" onclick="deleteEpisode('${e.id}')">×</button>
+   `}
   </div>`).join("");
 }
+
 function selectEpisode(id){
- saveEditor(false);episodeId=id;loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
-}
-function addEpisode(){
  saveEditor(false);
- const x=p(),e={id:uid(),title:`第${x.episodes.length+1}話`,body:"",notes:"",memo:""};
- x.episodes.push(e);episodeId=e.id;loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
+ episodeId=id;
+ loadEditor();
+ renderEpisodes();
+ renderMemo();
+ renderReferenceEpisodeOptions();
+ scheduleSave();
 }
+
+function addEpisode(){
+ if(isGuideProject())return;
+
+ saveEditor(false);
+ const x=p();
+ const e={
+  id:uid(),
+  title:`第${x.episodes.length+1}話`,
+  body:"",
+  notes:"",
+  memo:""
+ };
+ x.episodes.push(e);
+ episodeId=e.id;
+ loadEditor();
+ renderEpisodes();
+ renderMemo();
+ renderReferenceEpisodeOptions();
+ scheduleSave();
+}
+
 function deleteEpisode(id){
- const x=p();if(x.episodes.length<2){showToast("最後のエピソードは削除できません");return;}
+ if(isGuideProject())return;
+ const x=p();
+
+ if(x.episodes.length<2){
+  showToast("最後のエピソードは削除できません");
+  return;
+ }
+
  confirmAction("このエピソードを削除しますか？",()=>{
   x.episodes=x.episodes.filter(e=>e.id!==id);
   if(episodeId===id)episodeId=x.episodes[0].id;
-  loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
+  loadEditor();
+  renderEpisodes();
+  renderMemo();
+  renderReferenceEpisodeOptions();
+  scheduleSave();
  });
 }
 
@@ -412,6 +952,7 @@ function toggleReference(force){
  $("referencePanel").classList.toggle("hidden",!referenceOpen);
  if(referenceOpen)renderReferences();
 }
+
 function switchReferenceTab(tab){
  referenceTab=tab;
  $("refSettingsTab").classList.toggle("active",tab==="settings");
@@ -420,288 +961,694 @@ function switchReferenceTab(tab){
  $("referenceEpisodesPane").classList.toggle("hidden",tab!=="episodes");
  if(tab==="episodes")renderReferenceEpisodeOptions();
 }
+
 $("referenceSearch").addEventListener("input",renderReferences);
+
 function renderReferences(){
- const x=p();if(!x)return;
+ const x=p();
+ if(!x)return;
+
  const q=$("referenceSearch").value.trim().toLowerCase();
  const hits=[];
+
  x.categories.forEach(c=>c.entries.forEach(e=>{
   const text=[c.name,e.title,...e.fields.flatMap(f=>[f.name,f.value])].join(" ");
   if(!q||text.toLowerCase().includes(q))hits.push({c,e});
  }));
+
  $("referenceResults").innerHTML=hits.map(h=>`
   <div class="reference-result" onclick="showReference('${h.e.id}')">
-   <strong>${esc(h.e.title)}</strong><span class="muted">${esc(h.c.name)}</span>
+   <strong>${esc(h.e.title)}</strong>
+   <span class="muted">${esc(h.c.name)}</span>
   </div>`).join("")||'<div class="muted" style="margin-top:12px">該当する設定はありません。</div>';
 }
+
 function showReference(id){
- const e=p().categories.flatMap(c=>c.entries).find(e=>e.id===id);if(!e)return;
- $("referenceDetail").textContent=e.title+"\n\n"+e.fields.map(f=>f.name+"\n"+f.value).join("\n\n");
+ const e=p().categories.flatMap(c=>c.entries).find(e=>e.id===id);
+ if(!e)return;
+
+ $("referenceDetail").textContent=
+  e.title+"\n\n"+e.fields.map(f=>f.name+"\n"+f.value).join("\n\n");
 }
+
 function renderReferenceEpisodeOptions(){
- const x=p();if(!x)return;
+ const x=p();
+ if(!x)return;
+
  const select=$("referenceEpisodeSelect");
  const options=x.episodes.filter(e=>e.id!==episodeId);
  select.innerHTML="";
+
  if(!options.length){
   select.innerHTML='<option value="">参照できる別エピソードがありません</option>';
-  referenceEpisodeId=null;$("referenceEpisodeTitle").textContent="エピソード参照";
+  referenceEpisodeId=null;
+  $("referenceEpisodeTitle").textContent="エピソード参照";
   $("referenceEpisodeBody").textContent="別のエピソードを作成すると、ここで参照できます。";
   return;
  }
+
  if(!options.some(e=>e.id===referenceEpisodeId))referenceEpisodeId=options[0].id;
+
  options.forEach(e=>{
-  const opt=document.createElement("option");opt.value=e.id;opt.textContent=e.title||"無題";select.appendChild(opt);
+  const opt=document.createElement("option");
+  opt.value=e.id;
+  opt.textContent=e.title||"無題";
+  select.appendChild(opt);
  });
- select.value=referenceEpisodeId;renderReferenceEpisode();
+
+ select.value=referenceEpisodeId;
+ renderReferenceEpisode();
 }
+
 function renderReferenceEpisode(){
  const e=p()?.episodes.find(e=>e.id===referenceEpisodeId);
  if(!e)return;
+
  $("referenceEpisodeTitle").textContent=e.title||"無題";
  $("referenceEpisodeBody").textContent=e.body||"本文はまだありません。";
 }
+
 $("referenceEpisodeSelect").addEventListener("change",()=>{
- referenceEpisodeId=$("referenceEpisodeSelect").value;renderReferenceEpisode();
+ referenceEpisodeId=$("referenceEpisodeSelect").value;
+ renderReferenceEpisode();
 });
 
-/* 設定資料（v0.3のカテゴリ→資料→項目構造） */
+/* 設定資料 */
 function addCategory(){
- showModal("カテゴリ追加",`<div class="modal-field"><label>カテゴリ名</label><input id="newCategoryName" placeholder="カテゴリ名"></div>`,()=>{
-  const name=$("newCategoryName").value.trim();if(!name)return false;
-  if(p().categories.some(c=>c.name===name)){showToast("同名のカテゴリがあります");return false;}
-  const c={id:uid(),name,entries:[]};p().categories.push(c);categoryId=c.id;entryId=null;renderCategories();scheduleSave();
+ if(isGuideProject())return;
+
+ showModal("カテゴリ追加",`
+  <div class="modal-field">
+   <label>カテゴリ名</label>
+   <input id="newCategoryName" placeholder="カテゴリ名">
+  </div>`,()=>{
+  const name=$("newCategoryName").value.trim();
+  if(!name)return false;
+
+  if(p().categories.some(c=>c.name===name)){
+   showToast("同名のカテゴリがあります");
+   return false;
+  }
+
+  const c={id:uid(),name,entries:[]};
+  p().categories.push(c);
+  categoryId=c.id;
+  entryId=null;
+  renderCategories();
+  scheduleSave();
  });
 }
+
 function renderCategories(){
- const x=p();if(!x)return;
- if(!x.categories.some(c=>c.id===categoryId))categoryId=x.categories[0]?.id||null;
+ const x=p();
+ if(!x)return;
+
+ if(!x.categories.some(c=>c.id===categoryId)){
+  categoryId=x.categories[0]?.id||null;
+ }
+
  $("categoryList").innerHTML=x.categories.map(c=>`
   <button class="category-button ${c.id===categoryId?"active":""}" onclick="selectCategory('${c.id}')">
    ${esc(c.name)} (${c.entries.length})
   </button>`).join("")||'<div class="empty">カテゴリがありません。</div>';
+
  renderEntryList();
 }
-function selectCategory(id){categoryId=id;entryId=null;renderCategories();}
+
+function selectCategory(id){
+ categoryId=id;
+ entryId=null;
+ renderCategories();
+}
+
 function addEntry(){
- const c=cat();if(!c){showToast("先にカテゴリを作成してください");return;}
- const e={id:uid(),title:"新しい設定",fields:[{name:"概要",value:""}]};
- c.entries.push(e);entryId=e.id;renderEntryList();renderEntryEditor();renderReferences();scheduleSave();
+ if(isGuideProject())return;
+
+ const c=cat();
+ if(!c){
+  showToast("先にカテゴリを作成してください");
+  return;
+ }
+
+ const e={
+  id:uid(),
+  title:"新しい設定",
+  fields:[{name:"概要",value:""}]
+ };
+
+ c.entries.push(e);
+ entryId=e.id;
+ renderEntryList();
+ renderEntryEditor();
+ renderReferences();
+ scheduleSave();
 }
+
 function renderEntryList(){
- const c=cat();$("settingsHeading").textContent=c?.name||"設定資料";
- $("entryEditor").classList.toggle("hidden",!entryId);
- if(!c){$("entryList").innerHTML='<div class="empty">カテゴリを作成してください。</div>';return;}
+ const c=cat();
+
+ $("settingsHeading").textContent=c?.name||"設定資料";
+
+ if(!c){
+  $("entryList").innerHTML='<div class="settings-empty">カテゴリを選択してください。</div>';
+  $("entryEditor").classList.add("hidden");
+  return;
+ }
+
  $("entryList").innerHTML=c.entries.map(e=>`
-  <div class="entry-row">
-   <button onclick="selectEntry('${e.id}')">${esc(e.title||"無題")}</button>
-   <button onclick="deleteEntry('${e.id}')">×</button>
-  </div>`).join("")||'<div class="empty">資料はありません。</div>';
+  <div class="entry-row ${e.id===entryId?"active":""}">
+   <button class="entry-select" onclick="selectEntry('${e.id}')">${esc(e.title||"無題")}</button>
+   ${isGuideProject()?"":`
+    <button class="entry-delete" title="資料を削除" onclick="deleteEntry('${e.id}')">×</button>
+   `}
+  </div>`).join("")||'<div class="settings-empty">資料はまだありません。「＋ 資料を追加」から作成できます。</div>';
+
+ $("entryEditor").classList.toggle("hidden",!entryId);
 }
-function selectEntry(id){entryId=id;renderEntryList();renderEntryEditor();}
+
+function selectEntry(id){
+ entryId=id;
+ renderEntryList();
+ renderEntryEditor();
+}
+
 function renderEntryEditor(){
- const e=ent(),box=$("entryEditor");
- if(!e){box.classList.add("hidden");box.innerHTML="";return;}
+ const e=ent();
+ const box=$("entryEditor");
+
+ if(!e){
+  box.classList.add("hidden");
+  box.innerHTML="";
+  return;
+ }
+
  box.classList.remove("hidden");
+
  box.innerHTML=`
-  <div class="field"><label>設定名</label><input id="entryTitleInput" value="${esc(e.title)}"></div>
-  <div id="fields">
-   ${e.fields.map((f,i)=>`
-    <div class="field">
-     <label>項目名</label><input data-i="${i}" data-k="name" value="${esc(f.name)}">
-     <label style="margin-top:7px">内容</label><textarea data-i="${i}" data-k="value" rows="4">${esc(f.value)}</textarea>
-     <button onclick="removeField(${i})">項目を削除</button>
-    </div>`).join("")}
+  <div class="entry-editor-top">
+   <h3>資料の編集</h3>
+   <span class="muted">入力内容は自動保存されます</span>
   </div>
-  <button onclick="addField()">＋ 項目を追加</button>
-  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
-   <button class="danger" onclick="deleteEntry('${e.id}')">資料を削除</button>
-   <button class="primary" onclick="saveEntry()">保存</button>
+
+  <div class="editor-form">
+   <div class="field">
+    <label>設定名</label>
+    <input id="entryTitleInput" value="${esc(e.title)}" placeholder="設定名を入力">
+   </div>
+
+   <div id="fields">
+    ${e.fields.map((f,i)=>`
+     <div class="setting-field">
+      <div class="field">
+       <label>項目名</label>
+       <input data-i="${i}" data-k="name" value="${esc(f.name)}" placeholder="項目名">
+      </div>
+      <div class="field">
+       <label>内容</label>
+       <textarea data-i="${i}" data-k="value" rows="4" placeholder="内容を入力">${esc(f.value)}</textarea>
+      </div>
+      <div class="setting-field-actions">
+       <button class="danger" onclick="removeField(${i})">項目を削除</button>
+      </div>
+     </div>`).join("")}
+   </div>
+
+   <div class="add-field-row">
+    <button onclick="addField()">＋ 項目を追加</button>
+   </div>
+
+   ${isGuideProject()?"":`
+    <div class="entry-editor-actions">
+     <button class="primary" onclick="saveEntry()">保存</button>
+    </div>
+   `}
   </div>`;
- $("entryTitleInput").addEventListener("input",ev=>{e.title=ev.target.value;renderEntryList();renderReferences();scheduleSave();});
- box.querySelectorAll("[data-i]").forEach(el=>el.addEventListener("input",()=>{
-  e.fields[+el.dataset.i][el.dataset.k]=el.value;renderReferences();scheduleSave();
- }));
+
+ if(isGuideProject()){
+  $("entryTitleInput").readOnly=true;
+  box.querySelectorAll("[data-i]").forEach(el=>el.readOnly=true);
+  return;
+ }
+
+ $("entryTitleInput").addEventListener("input",ev=>{
+  e.title=ev.target.value;
+  renderEntryList();
+  renderReferences();
+  scheduleSave();
+ });
+
+ box.querySelectorAll("[data-i]").forEach(el=>{
+  el.addEventListener("input",()=>{
+   e.fields[+el.dataset.i][el.dataset.k]=el.value;
+   renderReferences();
+   scheduleSave();
+  });
+ });
 }
+
 function saveEntry(){
- const e=ent();if(!e)return;
+ if(isGuideProject())return;
+
+ const e=ent();
+ if(!e)return;
+
  e.title=$("entryTitleInput").value.trim()||"無題の設定";
+
  e.fields=[...$("entryEditor").querySelectorAll("[data-i][data-k='name']")].map((nameInput,i)=>{
   const valueInput=$("entryEditor").querySelector(`[data-i="${i}"][data-k="value"]`);
-  return{name:nameInput.value,value:valueInput?.value||""};
+  return{
+   name:nameInput.value,
+   value:valueInput?.value||""
+  };
  });
- renderEntryList();renderEntryEditor();renderReferences();scheduleSave();showToast("設定資料を保存しました");
+
+ renderEntryList();
+ renderEntryEditor();
+ renderReferences();
+ scheduleSave();
+ showToast("設定資料を保存しました");
 }
-function addField(){const e=ent();if(!e)return;e.fields.push({name:"項目",value:""});renderEntryEditor();scheduleSave();}
-function removeField(i){const e=ent();if(!e)return;e.fields.splice(i,1);renderEntryEditor();scheduleSave();}
+
+function addField(){
+ if(isGuideProject())return;
+ const e=ent();
+ if(!e)return;
+
+ e.fields.push({name:"項目",value:""});
+ renderEntryEditor();
+ scheduleSave();
+}
+
+function removeField(i){
+ if(isGuideProject())return;
+ const e=ent();
+ if(!e)return;
+
+ e.fields.splice(i,1);
+ renderEntryEditor();
+ renderReferences();
+ scheduleSave();
+}
+
 function deleteEntry(id){
- const c=cat();if(!c)return;
+ if(isGuideProject())return;
+ const c=cat();
+ if(!c)return;
+
  confirmAction("この設定資料を削除しますか？",()=>{
-  c.entries=c.entries.filter(e=>e.id!==id);entryId=null;renderEntryList();renderEntryEditor();renderReferences();scheduleSave();
+  c.entries=c.entries.filter(e=>e.id!==id);
+  entryId=null;
+  renderEntryList();
+  renderEntryEditor();
+  renderReferences();
+  scheduleSave();
  });
 }
 
 /* 執筆メモ */
 function renderMemo(){
- const x=p(),e=ep();if(!x)return;
+ const x=p(),e=ep();
+ if(!x)return;
+
  $("projectMemo").value=x.memo||x.plot||"";
  $("episodeMemo").value=e?(e.memo||e.notes||""):"";
- $("episodeMemo").disabled=!e;
- $("episodeMemoLabel").textContent=e?`「${e.title||"無題"}」のメモ`:"エピソード別メモ";
+ $("episodeMemo").disabled=!e||isGuideProject();
+ $("projectMemo").disabled=isGuideProject();
+
+ $("episodeMemoLabel").textContent=e
+  ?`「${e.title||"無題"}」のメモ`
+  :"エピソード別メモ";
 }
+
 $("projectMemo").addEventListener("input",()=>{
- const x=p();if(!x)return;x.memo=$("projectMemo").value;x.plot=x.memo;scheduleSave();
+ if(isGuideProject())return;
+ const x=p();
+ if(!x)return;
+
+ x.memo=$("projectMemo").value;
+ x.plot=x.memo;
+ scheduleSave();
 });
+
 $("episodeMemo").addEventListener("input",()=>{
- const e=ep();if(!e)return;e.memo=$("episodeMemo").value;e.notes=e.memo;scheduleSave();
+ if(isGuideProject())return;
+ const e=ep();
+ if(!e)return;
+
+ e.memo=$("episodeMemo").value;
+ e.notes=e.memo;
+ scheduleSave();
 });
 
 /* 横断検索 */
 function openGlobalSearch(){
+ if(isGuideProject())return;
+
  showModal("エピソード横断検索",`
-  <div class="modal-field"><label>検索語</label><input id="globalQuery" placeholder="検索する文字列"></div>
-  <div class="modal-field"><label>検索対象</label>
-   <select id="globalScope"><option value="all">本文＋設定資料</option><option value="episodes">エピソード本文</option><option value="settings">設定資料</option></select>
+  <div class="modal-field">
+   <label>検索語</label>
+   <input id="globalQuery" placeholder="検索する文字列">
+  </div>
+  <div class="modal-field">
+   <label>検索対象</label>
+   <select id="globalScope">
+    <option value="all">本文＋設定資料</option>
+    <option value="episodes">エピソード本文</option>
+    <option value="settings">設定資料</option>
+   </select>
   </div>
   <div id="globalResults" class="result-list"></div>`,()=>false,null);
- const query=$("globalQuery"),scope=$("globalScope");
+
+ const query=$("globalQuery");
+ const scope=$("globalScope");
+
  function run(){
-  const q=query.value.trim().toLowerCase(),x=p(),root=$("globalResults");root.innerHTML="";
+  const q=query.value.trim().toLowerCase();
+  const x=p();
+  const root=$("globalResults");
+  root.innerHTML="";
+
   if(!q)return;
+
   const found=[];
+
   if(scope.value!=="settings"){
    x.episodes.forEach(e=>{
     const pos=e.body.toLowerCase().indexOf(q);
-    if(pos>=0)found.push({kind:"本文",title:e.title,snippet:e.body.slice(Math.max(0,pos-65),Math.min(e.body.length,pos+q.length+100)),open:()=>{
-     episodeId=e.id;switchTab("writing");loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();$("modalRoot").innerHTML="";
-    }});
+    if(pos>=0){
+     found.push({
+      kind:"本文",
+      title:e.title,
+      snippet:e.body.slice(Math.max(0,pos-65),Math.min(e.body.length,pos+q.length+100)),
+      open:()=>{
+       episodeId=e.id;
+       switchTab("writing");
+       loadEditor();
+       renderEpisodes();
+       renderMemo();
+       renderReferenceEpisodeOptions();
+       $("modalRoot").innerHTML="";
+      }
+     });
+    }
    });
   }
+
   if(scope.value!=="episodes"){
    x.categories.forEach(c=>c.entries.forEach(e=>{
     const text=e.title+"\n"+e.fields.map(f=>f.name+"\n"+f.value).join("\n");
     const pos=text.toLowerCase().indexOf(q);
-    if(pos>=0)found.push({kind:"設定",title:e.title,snippet:text.slice(Math.max(0,pos-65),Math.min(text.length,pos+q.length+100)),open:()=>{
-     categoryId=c.id;entryId=e.id;switchTab("settings");renderCategories();renderEntryEditor();$("modalRoot").innerHTML="";
-    }});
+
+    if(pos>=0){
+     found.push({
+      kind:"設定",
+      title:e.title,
+      snippet:text.slice(Math.max(0,pos-65),Math.min(text.length,pos+q.length+100)),
+      open:()=>{
+       categoryId=c.id;
+       entryId=e.id;
+       switchTab("settings");
+       renderCategories();
+       renderEntryEditor();
+       $("modalRoot").innerHTML="";
+      }
+     });
+    }
    }));
   }
-  if(!found.length){root.innerHTML='<div class="empty">該当箇所がありません。</div>';return;}
+
+  if(!found.length){
+   root.innerHTML='<div class="empty">該当箇所がありません。</div>';
+   return;
+  }
+
   found.forEach(item=>{
-   const div=document.createElement("div");div.className="search-hit";
-   div.innerHTML=`<strong>${esc(item.kind)} ／ ${esc(item.title)}</strong><div class="search-snippet">${esc(item.snippet)}</div>`;
-   div.onclick=item.open;root.appendChild(div);
+   const div=document.createElement("div");
+   div.className="search-hit";
+   div.innerHTML=`
+    <strong>${esc(item.kind)} ／ ${esc(item.title)}</strong>
+    <div class="search-snippet">${esc(item.snippet)}</div>`;
+   div.onclick=item.open;
+   root.appendChild(div);
   });
  }
- query.addEventListener("input",run);scope.addEventListener("change",run);query.focus();
+
+ query.addEventListener("input",run);
+ scope.addEventListener("change",run);
+ query.focus();
 }
 
 /* 一括置換 */
 function openBulkReplace(){
+ if(isGuideProject())return;
+
  showModal("一括置換",`
-  <div class="modal-field"><label>検索文字列</label><input id="replaceFind"></div>
-  <div class="modal-field"><label>置換後</label><input id="replaceTo"></div>
-  <div class="modal-field"><label>対象</label>
-   <select id="replaceScope"><option value="episodes">エピソード本文</option><option value="settings">設定資料</option><option value="all">本文＋設定資料</option></select>
+  <div class="modal-field">
+   <label>検索文字列</label>
+   <input id="replaceFind">
+  </div>
+  <div class="modal-field">
+   <label>置換後</label>
+   <input id="replaceTo">
+  </div>
+  <div class="modal-field">
+   <label>対象</label>
+   <select id="replaceScope">
+    <option value="episodes">エピソード本文</option>
+    <option value="settings">設定資料</option>
+    <option value="all">本文＋設定資料</option>
+   </select>
   </div>
   <p class="muted">置換前にJSONバックアップを保存することをおすすめします。</p>`,()=>{
-  const find=$("replaceFind").value,to=$("replaceTo").value,scope=$("replaceScope").value,x=p();
-  if(!find){$("replaceFind").focus();return false;}
+  const find=$("replaceFind").value;
+  const to=$("replaceTo").value;
+  const scope=$("replaceScope").value;
+  const x=p();
+
+  if(!find){
+   $("replaceFind").focus();
+   return false;
+  }
+
   let count=0;
-  if(scope!=="settings")x.episodes.forEach(e=>{
-   const n=e.body.split(find).length-1;if(n){e.body=e.body.split(find).join(to);count+=n;}
-  });
-  if(scope!=="episodes")x.categories.forEach(c=>c.entries.forEach(e=>{
-   e.fields.forEach(f=>{const n=f.value.split(find).length-1;if(n){f.value=f.value.split(find).join(to);count+=n;}});
-  }));
-  save();loadEditor();renderEpisodes();renderCategories();renderReferences();showToast(count+"箇所を置換しました");
+
+  if(scope!=="settings"){
+   x.episodes.forEach(e=>{
+    const n=e.body.split(find).length-1;
+    if(n){
+     e.body=e.body.split(find).join(to);
+     count+=n;
+    }
+   });
+  }
+
+  if(scope!=="episodes"){
+   x.categories.forEach(c=>c.entries.forEach(e=>{
+    e.fields.forEach(f=>{
+     const n=f.value.split(find).length-1;
+     if(n){
+      f.value=f.value.split(find).join(to);
+      count+=n;
+     }
+    });
+   }));
+  }
+
+  save();
+  loadEditor();
+  renderEpisodes();
+  renderCategories();
+  renderReferences();
+  showToast(count+"箇所を置換しました");
  },"置換する");
 }
 
 /* 履歴：手動スナップショット */
 function openHistory(){
- const e=ep();if(!e)return;
+ if(isGuideProject())return;
+
+ const e=ep();
+ if(!e)return;
+
  showModal("執筆履歴",`
   <p class="muted">現在のエピソードの本文を履歴として保存できます。履歴はこのブラウザ内に保持されます。</p>
   <button class="primary" id="makeSnapshot">現在の本文を保存</button>
   <div id="historyList" class="result-list"></div>`,()=>false,null);
+
  function render(){
   const list=historyData[episodeId]||[];
+
   $("historyList").innerHTML=list.slice().reverse().map(s=>`
-   <div class="search-hit"><strong>${esc(new Date(s.time).toLocaleString("ja-JP"))}</strong>
-   <div class="search-snippet">${esc(s.title)} ／ ${s.body.length}文字</div>
-   <button data-restore="${s.id}" style="margin-top:8px">復元</button></div>`).join("")||'<div class="empty">履歴がありません。</div>';
-  $("historyList").querySelectorAll("[data-restore]").forEach(btn=>btn.onclick=()=>{
-   const snap=list.find(s=>s.id===btn.dataset.restore);if(!snap)return;
-   confirmAction("この履歴を本文に復元しますか？",()=>{
-    const target=ep();target.title=snap.title;target.body=snap.body;
-    loadEditor();renderEpisodes();save();$("modalRoot").innerHTML="";showToast("履歴を復元しました");
-   });
+   <div class="search-hit">
+    <strong>${esc(new Date(s.time).toLocaleString("ja-JP"))}</strong>
+    <div class="search-snippet">${esc(s.title)} ／ ${s.body.length}文字</div>
+    <button data-restore="${s.id}" style="margin-top:8px">復元</button>
+   </div>`).join("")||'<div class="empty">履歴がありません。</div>';
+
+  $("historyList").querySelectorAll("[data-restore]").forEach(btn=>{
+   btn.onclick=()=>{
+    const snap=list.find(s=>s.id===btn.dataset.restore);
+    if(!snap)return;
+
+    confirmAction("この履歴を本文に復元しますか？",()=>{
+     const target=ep();
+     target.title=snap.title;
+     target.body=snap.body;
+     loadEditor();
+     renderEpisodes();
+     save();
+     $("modalRoot").innerHTML="";
+     showToast("履歴を復元しました");
+    });
+   };
   });
  }
+
  $("makeSnapshot").onclick=()=>{
-  saveEditor(false);historyData[episodeId] ||= [];
-  historyData[episodeId].push({id:uid(),time:timestamp(),title:e.title,body:e.body});
+  saveEditor(false);
+  historyData[episodeId] ||= [];
+
+  historyData[episodeId].push({
+   id:uid(),
+   time:timestamp(),
+   title:e.title,
+   body:e.body
+  });
+
   historyData[episodeId]=historyData[episodeId].slice(-10);
-  try{localStorage.setItem(BACKUP_KEY,JSON.stringify(historyData));}catch{}
-  render();showToast("履歴を保存しました");
+
+  try{
+   localStorage.setItem(BACKUP_KEY,JSON.stringify(historyData));
+  }catch{}
+
+  render();
+  showToast("履歴を保存しました");
  };
- try{historyData=JSON.parse(localStorage.getItem(BACKUP_KEY)||"{}");}catch{historyData={};}
+
+ try{
+  historyData=JSON.parse(localStorage.getItem(BACKUP_KEY)||"{}");
+ }catch{
+  historyData={};
+ }
+
  render();
 }
 
 /* JSON/TXTの入出力 */
 function download(name,content,type){
- const a=document.createElement("a"),url=URL.createObjectURL(new Blob([content],{type}));
- a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+ const a=document.createElement("a");
+ const url=URL.createObjectURL(new Blob([content],{type}));
+ a.href=url;
+ a.download=name;
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function filename(s){return String(s||"novel").replace(/[\\/:*?"<>|]/g,"_");}
+
+function filename(s){
+ return String(s||"novel").replace(/[\\/:*?"<>|]/g,"_");
+}
+
 function exportJSON(){
+ if(isGuideProject())return;
  saveEditor(false);
  download(filename(p().name)+".json",JSON.stringify(p(),null,2),"application/json");
 }
+
 function exportTXT(){
+ if(isGuideProject())return;
  saveEditor(false);
- download(filename(p().name)+".txt",p().episodes.map(e=>e.title+"\n\n"+e.body).join("\n\n"+"—".repeat(20)+"\n\n"),"text/plain;charset=utf-8");
+ download(
+  filename(p().name)+".txt",
+  p().episodes.map(e=>e.title+"\n\n"+e.body).join("\n\n"+"—".repeat(20)+"\n\n"),
+  "text/plain;charset=utf-8"
+ );
 }
+
 function exportFullBackup(){
  saveEditor(false);
  download("write-novel-backup.json",JSON.stringify({version:4,projects},null,2),"application/json");
 }
+
 $("importFile").addEventListener("change",async ev=>{
- const file=ev.target.files[0];if(!file)return;
+ if(isGuideProject()){
+  ev.target.value="";
+  return;
+ }
+
+ const file=ev.target.files[0];
+ if(!file)return;
+
  try{
   const data=JSON.parse(await file.text());
   let imported=[];
-  if(Array.isArray(data.episodes)&&Array.isArray(data.categories))imported=[data];
-  else if(Array.isArray(data.projects))imported=data.projects;
-  else if(Array.isArray(data))imported=data;
-  else throw Error("作品データの形式が違います。");
+
+  if(Array.isArray(data.episodes)&&Array.isArray(data.categories)){
+   imported=[data];
+  }else if(Array.isArray(data.projects)){
+   imported=data.projects;
+  }else if(Array.isArray(data)){
+   imported=data;
+  }else{
+   throw Error("作品データの形式が違います。");
+  }
+
   imported=imported.map(normalizeProject).filter(Boolean);
+
   if(!imported.length)throw Error("読み込める作品がありません。");
+
   confirmAction("読み込んだ作品を現在の作品一覧に追加しますか？",()=>{
    imported.forEach(x=>{
-    x.id=uid();x.name=(x.name||file.name.replace(/\.json$/i,""))+"（読み込み）";
+    x.id=uid();
+    x.name=(x.name||file.name.replace(/\.json$/i,""))+"（読み込み）";
+    delete x.isGuide;
    });
-   projects.unshift(...imported);save();renderHome();openProject(imported[0].id);
+
+   projects.unshift(...imported);
+   save();
+   renderHome();
+   openProject(imported[0].id);
    showToast("作品データを読み込みました");
   });
- }catch(err){alert("読み込みに失敗しました。\n"+err.message);}
+ }catch(err){
+  alert("読み込みに失敗しました。\n"+err.message);
+ }
+
  ev.target.value="";
 });
 
 /* ダイアログ */
 function showModal(title,body,onSubmit,submitLabel="保存"){
  const root=$("modalRoot");
- root.innerHTML=`<div class="modal-bg"><div class="modal"><h2>${esc(title)}</h2><div id="modalBody">${body}</div>
- <div class="modal-actions"><button id="modalCancel">キャンセル</button>${submitLabel===null?"":`<button class="primary" id="modalSubmit">${esc(submitLabel)}</button>`}</div></div></div>`;
+
+ root.innerHTML=`
+  <div class="modal-bg">
+   <div class="modal">
+    <h2>${esc(title)}</h2>
+    <div id="modalBody">${body}</div>
+    <div class="modal-actions">
+     <button id="modalCancel">キャンセル</button>
+     ${submitLabel===null?"":`<button class="primary" id="modalSubmit">${esc(submitLabel)}</button>`}
+    </div>
+   </div>
+  </div>`;
+
  $("modalCancel").onclick=()=>root.innerHTML="";
- if($("modalSubmit"))$("modalSubmit").onclick=()=>{if(onSubmit()!==false)root.innerHTML="";};
- root.querySelector(".modal-bg").addEventListener("click",e=>{if(e.target.classList.contains("modal-bg"))root.innerHTML="";});
+
+ if($("modalSubmit")){
+  $("modalSubmit").onclick=()=>{
+   if(onSubmit()!==false)root.innerHTML="";
+  };
+ }
+
+ root.querySelector(".modal-bg").addEventListener("click",e=>{
+  if(e.target.classList.contains("modal-bg"))root.innerHTML="";
+ });
 }
+
 function confirmAction(message,callback){
  showModal("確認",`<p>${esc(message)}</p>`,()=>callback(),"実行");
 }
+
 function openShortcuts(){
  showModal("キーボードショートカット",`
   <p class="muted">⌘（Command）＋⇧（Shift）を中心に設定しています。ブラウザやiPadOSの標準操作と競合する場合があります。</p>
@@ -715,44 +1662,111 @@ function openShortcuts(){
    <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
   </table>`,()=>false,null);
 }
+
 function moveEpisode(delta){
- const x=p(),i=x.episodes.findIndex(e=>e.id===episodeId),next=i+delta;
+ const x=p();
+ if(!x)return;
+
+ const i=x.episodes.findIndex(e=>e.id===episodeId);
+ const next=i+delta;
+
  if(next<0||next>=x.episodes.length)return;
  selectEpisode(x.episodes[next].id);
 }
+
 function handleShortcut(event){
  if(!event.metaKey)return;
+
  const key=event.key.toLowerCase();
- if(key==="s"){event.preventDefault();saveEditor(false);save();showToast("保存しました");return;}
- if(event.shiftKey&&key==="f"){event.preventDefault();openGlobalSearch();return;}
- if(event.shiftKey&&key==="enter"){event.preventDefault();addEpisode();return;}
- if(event.shiftKey&&event.key==="ArrowUp"){event.preventDefault();moveEpisode(-1);return;}
- if(event.shiftKey&&event.key==="ArrowDown"){event.preventDefault();moveEpisode(1);return;}
- if(event.shiftKey&&key==="r"){event.preventDefault();toggleReference();return;}
- if(event.shiftKey&&key==="k"){event.preventDefault();openShortcuts();}
+
+ if(key==="s"){
+  event.preventDefault();
+  if(!isGuideProject()){
+   saveEditor(false);
+   save();
+   showToast("保存しました");
+  }
+  return;
+ }
+
+ if(event.shiftKey&&key==="f"){
+  event.preventDefault();
+  openGlobalSearch();
+  return;
+ }
+
+ if(event.shiftKey&&key==="enter"){
+  event.preventDefault();
+  addEpisode();
+  return;
+ }
+
+ if(event.shiftKey&&event.key==="ArrowUp"){
+  event.preventDefault();
+  if(!isGuideProject())moveEpisode(-1);
+  return;
+ }
+
+ if(event.shiftKey&&event.key==="ArrowDown"){
+  event.preventDefault();
+  if(!isGuideProject())moveEpisode(1);
+  return;
+ }
+
+ if(event.shiftKey&&key==="r"){
+  event.preventDefault();
+  toggleReference();
+  return;
+ }
+
+ if(event.shiftKey&&key==="k"){
+  event.preventDefault();
+  openShortcuts();
+ }
 }
+
 document.addEventListener("keydown",handleShortcut);
-window.addEventListener("beforeunload",()=>{try{localStorage.setItem(KEY,JSON.stringify(projects));}catch{}});
+
+window.addEventListener("beforeunload",()=>{
+ try{
+  localStorage.setItem(KEY,JSON.stringify(projects));
+ }catch{}
+});
+
+/* 起動処理 */
+ensureGuideProject();
+save();
 renderHome();
 
-/* v1.0 オープニング演出 */
+/* v1.1 オープニング演出 */
 function startIntro(){
- const screen=$("introScreen"),title=$("introTitle");
+ const screen=$("introScreen");
+ const title=$("introTitle");
  if(!screen||!title)return;
+
  const name="Write-novel";
  const reducedMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
  let index=0;
+
  function typeNext(){
-  if(index<name.length){title.textContent+=name[index++];setTimeout(typeNext,reducedMotion?35:105);return;}
+  if(index<name.length){
+   title.textContent+=name[index++];
+   setTimeout(typeNext,reducedMotion?35:105);
+   return;
+  }
+
   setTimeout(()=>{
    screen.classList.add("is-zooming");
+
    const finish=()=>screen.classList.add("is-hidden");
    title.addEventListener("animationend",finish,{once:true});
    setTimeout(finish,reducedMotion?350:1100);
   },reducedMotion?180:500);
  }
+
  typeNext();
 }
+
 startIntro();
 </script>
 </body>
