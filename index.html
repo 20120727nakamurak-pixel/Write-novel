@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4efe6">
-<title>Write-novel v0.8</title>
+<title>Write-novel v1.0</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -97,6 +97,15 @@ main{max-width:1500px;margin:auto;padding:25px}
 kbd{font-family:inherit;font-size:11px;padding:2px 5px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--panel)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:30;background:var(--accent-dark);color:white;padding:10px 15px;border-radius:8px;font-size:12px}
 mark{background:#e8dfb8;color:inherit}
+/* v1.0 オープニング */
+.intro-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg);overflow:hidden}
+.intro-title{display:inline-block;font-family:Georgia,serif;font-size:clamp(34px,7vw,62px);font-weight:bold;letter-spacing:-1.5px;color:var(--accent-dark);white-space:nowrap;transform-origin:center center;will-change:transform,opacity}
+.intro-title::after{content:"";display:inline-block;width:2px;height:.88em;margin-left:5px;vertical-align:-.08em;background:var(--accent-dark);animation:intro-caret .8s steps(1,end) infinite}
+.intro-screen.is-zooming .intro-title{animation:intro-zoom .9s cubic-bezier(.2,.72,.25,1) forwards}
+.intro-screen.is-hidden{display:none}
+@keyframes intro-caret{50%{opacity:0}}
+@keyframes intro-zoom{0%{transform:scale(1);opacity:1;filter:blur(0)}65%{opacity:1}100%{transform:scale(24);opacity:0;filter:blur(3px)}}
+@media(prefers-reduced-motion:reduce){.intro-title::after{animation:none}.intro-screen.is-zooming .intro-title{animation:intro-zoom .15s ease-out forwards}}
 @media(max-width:850px){
  .editor-layout{grid-template-columns:170px minmax(200px,1fr)}
  .reference-panel{width:min(330px,90vw)}
@@ -114,8 +123,9 @@ mark{background:#e8dfb8;color:inherit}
 </style>
 </head>
 <body>
+<div id="introScreen" class="intro-screen" aria-label="Write-novel 起動中"><div id="introTitle" class="intro-title" aria-label="Write-novel"></div></div>
 <header class="topbar">
-  <div class="brand">Write-novel <span>v0.8</span></div>
+  <div class="brand">Write-novel <span>v1.0</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -247,7 +257,6 @@ function save(silent=false){
  }
 }
 function scheduleSave(){
- $("saveStatus").textContent="保存中…";
  $("episodeSaveStatus").textContent="保存中…";
  clearTimeout(saveTimer);
  saveTimer=setTimeout(()=>save(true),300);
@@ -725,6 +734,26 @@ function handleShortcut(event){
 document.addEventListener("keydown",handleShortcut);
 window.addEventListener("beforeunload",()=>{try{localStorage.setItem(KEY,JSON.stringify(projects));}catch{}});
 renderHome();
+
+/* v1.0 オープニング演出 */
+function startIntro(){
+ const screen=$("introScreen"),title=$("introTitle");
+ if(!screen||!title)return;
+ const name="Write-novel";
+ const reducedMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ let index=0;
+ function typeNext(){
+  if(index<name.length){title.textContent+=name[index++];setTimeout(typeNext,reducedMotion?35:105);return;}
+  setTimeout(()=>{
+   screen.classList.add("is-zooming");
+   const finish=()=>screen.classList.add("is-hidden");
+   title.addEventListener("animationend",finish,{once:true});
+   setTimeout(finish,reducedMotion?350:1100);
+  },reducedMotion?180:500);
+ }
+ typeNext();
+}
+startIntro();
 </script>
 </body>
 </html>
