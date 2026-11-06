@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<title>Write-novel v1.2</title>
+<title>Write-novel v1.3</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -84,7 +84,14 @@ main{max-width:1500px;margin:auto;padding:25px}
 .settings-page{padding:16px;overflow:auto;flex:1}
 .settings-layout{display:grid;grid-template-columns:210px minmax(280px,1fr);gap:13px;max-width:1250px;margin:auto;align-items:start}
 .settings-box{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.category-button{display:block;width:100%;text-align:left;border:0;border-radius:0}
+.category-row{display:flex;align-items:center;border-bottom:1px solid #eee7dc}
+.category-row:last-child{border-bottom:0}
+.category-button{display:block;flex:1;min-width:0;text-align:left;border:0;border-radius:0}
+.category-delete{flex:none;color:var(--danger);border:0;background:transparent;padding:7px 10px}
+.category-delete:hover{background:var(--panel)}
+.shared-settings-bar{max-width:1250px;margin:0 auto 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;background:var(--soft);border:1px solid #d5ddc9;border-radius:10px}
+.shared-settings-bar h2{font-size:17px;margin-bottom:4px}
+.shared-settings-bar p{margin:0}
 .category-button.active{background:var(--soft);color:var(--accent-dark)}
 .category-list{padding:5px 0}
 .settings-main{min-width:0}
@@ -137,7 +144,7 @@ mark{background:#e8dfb8;color:inherit}
 @keyframes intro-caret{50%{opacity:0}}
 @keyframes intro-zoom{0%{transform:scale(1);opacity:1;filter:blur(0)}65%{opacity:1}100%{transform:scale(24);opacity:0;filter:blur(3px)}}
 @media(prefers-reduced-motion:reduce){.intro-title::after{animation:none}.intro-screen.is-zooming .intro-title{animation:intro-zoom .15s ease-out forwards}}
-.trash-button{position:fixed;right:22px;bottom:22px;z-index:10;box-shadow:0 5px 18px #51432b20}
+.trash-button{box-shadow:0 2px 8px #51432b12}
 .trash-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .trash-row:last-child{border-bottom:0}
 .trash-info{min-width:0;flex:1}
@@ -155,13 +162,15 @@ mark{background:#e8dfb8;color:inherit}
  .episode-item{min-width:150px}
  .settings-layout{grid-template-columns:1fr}
  .settings-category-box .category-list{display:flex;overflow:auto}
+ .settings-category-box .category-row{flex:none;border:0}
  .settings-category-box .category-button{width:auto;white-space:nowrap}
+ .shared-settings-bar{align-items:flex-start}
  .settings-main-head{align-items:flex-start}
  .entry-list{grid-template-columns:1fr}
  .workspace{height:calc(100vh - 58px)}
  .toolbar{gap:5px}
  .project-name{max-width:100px}
- .trash-button{right:12px;bottom:12px}
+
  .trash-row{flex-direction:column}
  .trash-actions{justify-content:flex-start}
 }
@@ -173,7 +182,7 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <div class="brand">Write-novel <span>v1.2</span></div>
+  <div class="brand">Write-novel <span>v1.3</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -183,17 +192,19 @@ mark{background:#e8dfb8;color:inherit}
       <h1>作品ホーム</h1>
       <div class="muted">作品を選んで執筆を始めよう。</div>
     </div>
-    <button class="primary" onclick="createProject()">＋ 新しい作品</button>
+    <div class="actions">
+      <button onclick="openSharedSettings(true)">全作品共有設定</button>
+      <button class="primary" onclick="createProject()">＋ 新しい作品</button>
+    </div>
   </div>
   <div id="projectGrid" class="grid"></div>
 </main>
-
-<button id="trashButton" class="trash-button" onclick="openTrash()">ゴミ箱 <span id="trashCount">0</span></button>
 
 <section id="workspace" class="workspace hidden">
   <div class="toolbar">
     <button onclick="showHome()">← ホーム</button>
     <div id="projectName" class="project-name"></div>
+    <button id="sharedSettingsButton" onclick="openSharedSettings(false)">全作品共有設定</button>
     <div class="tabs">
       <button id="writingTab" class="tab active" onclick="switchTab('writing')">執筆</button>
       <button id="settingsTab" class="tab" onclick="switchTab('settings')">設定</button>
@@ -204,6 +215,7 @@ mark{background:#e8dfb8;color:inherit}
     <button id="bulkReplaceButton" onclick="openBulkReplace()">一括置換</button>
     <button id="historyButton" onclick="openHistory()">履歴</button>
     <button onclick="openShortcuts()">ショートカット</button>
+    <button id="trashButton" class="trash-button" onclick="openTrash()">ゴミ箱 <span id="trashCount">0</span></button>
     <button id="exportJSONButton" onclick="exportJSON()">JSON保存</button>
     <button id="exportTXTButton" onclick="exportTXT()">TXT保存</button>
     <button id="importJSONButton" onclick="$('importFile').click()">JSON読込</button>
@@ -258,6 +270,13 @@ mark{background:#e8dfb8;color:inherit}
   </div>
 
   <section id="settingsView" class="settings-page hidden">
+    <div id="sharedSettingsBar" class="shared-settings-bar hidden">
+      <div>
+        <h2>全作品共有設定</h2>
+        <p class="muted">ここに登録した資料は、すべての作品で共通して管理されます。作品ごとの設定欄には表示されません。</p>
+      </div>
+      <button onclick="closeSharedSettings()">戻る</button>
+    </div>
     <div class="settings-layout">
       <aside class="settings-box settings-category-box">
         <div class="panel-head">
@@ -304,11 +323,15 @@ const KEY="write-novel-v03";
 const BACKUP_KEY="write-novel-v04-backup";
 const GUIDE_ID="write-novel-guide-v11";
 const TRASH_KEY="write-novel-v12-trash";
+const SHARED_SETTINGS_KEY="write-novel-v13-shared-settings";
 const TRASH_MAX=10;
 const TRASH_DAYS=10;
 
 let projects=load();
 let trash=loadTrash();
+let sharedSettings=loadSharedSettings();
+let sharedSettingsMode=false,sharedReturnToHome=false,sharedReturnTab="writing";
+let sharedCategoryId=null,sharedEntryId=null;
 let projectId=null,episodeId=null,categoryId=null,entryId=null;
 let saveTimer=null,referenceOpen=false,referenceTab="settings",referenceEpisodeId=null;
 let historyData={};
@@ -338,6 +361,30 @@ function loadTrash(){
   return Array.isArray(data)?data:[];
  }catch{return []}
 }
+function loadSharedSettings(){
+ try{
+  const data=JSON.parse(localStorage.getItem(SHARED_SETTINGS_KEY)||"null");
+  if(data&&Array.isArray(data.categories))return data;
+ }catch{}
+ return {categories:[]};
+}
+function saveSharedSettings(){
+ try{
+  localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings));
+  $("saveStatus").textContent="共有設定を保存済み";
+ }catch{
+  $("saveStatus").textContent="保存失敗";
+  alert("共有設定の保存領域が不足しています。");
+ }
+}
+function activeCategories(){
+ return sharedSettingsMode?sharedSettings.categories:(p()?.categories||[]);
+}
+function activeCategoryId(){return sharedSettingsMode?sharedCategoryId:categoryId}
+function setActiveCategoryId(id){if(sharedSettingsMode)sharedCategoryId=id;else categoryId=id}
+function activeEntryId(){return sharedSettingsMode?sharedEntryId:entryId}
+function setActiveEntryId(id){if(sharedSettingsMode)sharedEntryId=id;else entryId=id}
+
 
 function saveTrash(){
  localStorage.setItem(TRASH_KEY,JSON.stringify(trash));
@@ -377,16 +424,21 @@ function save(silent=false){
 
 function scheduleSave(){
  if(isGuideProject())return;
- $("episodeSaveStatus").textContent="保存中…";
  clearTimeout(saveTimer);
+ if(sharedSettingsMode){
+  $("saveStatus").textContent="共有設定を保存中…";
+  saveTimer=setTimeout(saveSharedSettings,300);
+  return;
+ }
+ $("episodeSaveStatus").textContent="保存中…";
  saveTimer=setTimeout(()=>save(true),300);
 }
 
 function p(){return projects.find(x=>x.id===projectId)}
 function ep(){return p()?.episodes.find(x=>x.id===episodeId)}
-function cat(){return p()?.categories.find(x=>x.id===categoryId)}
-function ent(){return cat()?.entries.find(x=>x.id===entryId)}
-function isGuideProject(){return projectId===GUIDE_ID}
+function cat(){return activeCategories().find(x=>x.id===activeCategoryId())}
+function ent(){return cat()?.entries.find(x=>x.id===activeEntryId())}
+function isGuideProject(){return !sharedSettingsMode&&projectId===GUIDE_ID}
 
 /* 新規作品 */
 function freshProject(name){
@@ -456,6 +508,9 @@ Write-novelは、小説の執筆と作品資料の管理をひとつにまとめ
 【自動保存】
 入力内容は自動保存されます。`},
  {title:"設定資料",body:`設定画面では、人物や世界観などの情報を管理できます。
+
+【全作品共有設定】
+ホーム画面または作品執筆画面の「全作品共有設定」から、すべての作品で共通して使う資料を管理できます。共有設定は作品ごとの設定欄とは独立しています。
 
 【カテゴリ】
 「＋」ボタンから好きなカテゴリを追加できます。
@@ -562,8 +617,7 @@ function showToast(message){
  setTimeout(()=>{$("toastRoot").innerHTML=""},2400);
 }
 
-function updateTrashCount(){
- const count=$("trashCount");
+function updateTrashCount(){ const count=$("trashCount");
  if(count)count.textContent=trash.length;
 }
 
@@ -641,7 +695,10 @@ function setGuideMode(){
 }
 
 function openProject(id){
- saveEditor(false);projectId=id;
+ sharedSettingsMode=false;$("sharedSettingsBar").classList.add("hidden");
+ $("workspace").querySelector(".tabs").classList.remove("hidden");
+ $("sharedSettingsButton").classList.remove("hidden");
+ projectId=id;
  const x=p();if(!x)return;
  normalizeProject(x);episodeId=x.episodes[0]?.id||null;
  categoryId=x.categories[0]?.id||null;entryId=null;referenceEpisodeId=null;
@@ -650,7 +707,43 @@ function openProject(id){
  renderEpisodes();loadEditor();renderCategories();renderReferences();renderMemo();toggleReference(false);
 }
 
-function showHome(){saveEditor(false);save();renderHome()}
+function showHome(){
+ if(sharedSettingsMode){sharedSettingsMode=false;saveSharedSettings();}
+ saveEditor(false);save();renderHome();
+}
+function openSharedSettings(fromHome=false){
+ if(sharedSettingsMode)return;
+ saveEditor(false);
+ if(!$("workspace").classList.contains("hidden"))toggleReference(false);
+ sharedReturnToHome=!!fromHome||$("workspace").classList.contains("hidden");
+ if(!sharedReturnToHome){
+  sharedReturnTab=$("memoView").classList.contains("hidden")?($("settingsView").classList.contains("hidden")?"writing":"settings"):"memo";
+ }
+ sharedSettingsMode=true;
+ sharedCategoryId=sharedSettings.categories[0]?.id||null;sharedEntryId=null;
+ $("homeView").classList.add("hidden");$("workspace").classList.remove("hidden");
+ $("projectName").textContent="全作品共有設定";
+ $("workspace").querySelector(".tabs").classList.add("hidden");
+ $("sharedSettingsButton").classList.add("hidden");
+ ["referenceToggle","globalSearchButton","bulkReplaceButton","historyButton","exportJSONButton","exportTXTButton","importJSONButton"].forEach(id=>$(id).classList.add("hidden"));
+ $("trashButton").classList.remove("hidden");
+ $("guideNotice").classList.add("hidden");
+ $("writingView").classList.add("hidden");$("memoView").classList.add("hidden");$("settingsView").classList.remove("hidden");
+ $("sharedSettingsBar").classList.remove("hidden");
+ $("addCategoryButton").classList.remove("hidden");$("addEntryButton").classList.remove("hidden");
+ renderCategories();
+}
+function closeSharedSettings(){
+ saveSharedSettings();
+ sharedSettingsMode=false;
+ $("sharedSettingsBar").classList.add("hidden");
+ $("workspace").querySelector(".tabs").classList.remove("hidden");
+ $("sharedSettingsButton").classList.remove("hidden");
+ if(sharedReturnToHome){renderHome();return}
+ $("projectName").textContent=p()?.name||"";
+ setGuideMode();
+ switchTab(sharedReturnTab);
+}
 function switchTab(tab){
  $("writingView").classList.toggle("hidden",tab!=="writing");
  $("settingsView").classList.toggle("hidden",tab!=="settings");
@@ -754,33 +847,50 @@ function addCategory(){
  if(isGuideProject())return;
  showModal("カテゴリ追加",`<div class="modal-field"><label>カテゴリ名</label><input id="newCategoryName" placeholder="カテゴリ名"></div>`,()=>{
   const name=$("newCategoryName").value.trim();if(!name)return false;
-  if(p().categories.some(c=>c.name===name)){showToast("同名のカテゴリがあります");return false}
-  const c={id:uid(),name,entries:[]};p().categories.push(c);categoryId=c.id;entryId=null;renderCategories();scheduleSave();
+  if(activeCategories().some(c=>c.name===name)){showToast("同名のカテゴリがあります");return false}
+  const c={id:uid(),name,entries:[]};activeCategories().push(c);
+  setActiveCategoryId(c.id);setActiveEntryId(null);renderCategories();scheduleSave();
  });
 }
 function renderCategories(){
- const x=p();if(!x)return;
- if(!x.categories.some(c=>c.id===categoryId))categoryId=x.categories[0]?.id||null;
- $("categoryList").innerHTML=x.categories.map(c=>`<button class="category-button ${c.id===categoryId?"active":""}" onclick="selectCategory('${c.id}')">${esc(c.name)} (${c.entries.length})</button>`).join("")||'<div class="empty">カテゴリがありません。</div>';
+ const categories=activeCategories(),selectedId=activeCategoryId();
+ if(!categories.some(c=>c.id===selectedId))setActiveCategoryId(categories[0]?.id||null);
+ const currentId=activeCategoryId();
+ $("categoryList").innerHTML=categories.map(c=>`<div class="category-row">
+  <button class="category-button ${c.id===currentId?"active":""}" onclick="selectCategory('${c.id}')">${esc(c.name)} (${c.entries.length})</button>
+  <button class="category-delete" title="カテゴリをゴミ箱へ移動" onclick="deleteCategory('${c.id}')">×</button>
+ </div>`).join("")||'<div class="empty">カテゴリがありません。</div>';
  renderEntryList();
 }
-function selectCategory(id){categoryId=id;entryId=null;renderCategories()}
+function selectCategory(id){setActiveCategoryId(id);setActiveEntryId(null);renderCategories()}
+function deleteCategory(id){
+ if(isGuideProject())return;
+ const categories=activeCategories(),target=categories.find(c=>c.id===id);if(!target)return;
+ confirmAction(`「${target.name}」と、その中の設定資料・項目をまとめてゴミ箱へ移動しますか？`,()=>{
+  const index=categories.findIndex(c=>c.id===id);
+  addToTrash("category",target.name,target,{shared:sharedSettingsMode,projectId:projectId,index});
+  const remaining=categories.filter(c=>c.id!==id);
+  if(sharedSettingsMode)sharedSettings.categories=remaining;else p().categories=remaining;
+  if(activeCategoryId()===id){setActiveCategoryId(remaining[0]?.id||null);setActiveEntryId(null)}
+  renderCategories();scheduleSave();showToast("カテゴリをゴミ箱へ移動しました");
+ });
+}
 function addEntry(){
  if(isGuideProject())return;const c=cat();
  if(!c){showToast("先にカテゴリを作成してください");return}
  const e={id:uid(),title:"新しい設定",fields:[{name:"概要",value:""}]};
- c.entries.push(e);entryId=e.id;renderEntryList();renderEntryEditor();renderReferences();scheduleSave();
+ c.entries.push(e);setActiveEntryId(e.id);renderEntryList();renderEntryEditor();if(!sharedSettingsMode)renderReferences();scheduleSave();
 }
 function renderEntryList(){
- const c=cat();$("settingsHeading").textContent=c?.name||"設定資料";
+ const c=cat(),selectedId=activeEntryId();$("settingsHeading").textContent=c?.name||"設定資料";
  if(!c){$("entryList").innerHTML='<div class="settings-empty">カテゴリを選択してください。</div>';$("entryEditor").classList.add("hidden");return}
- $("entryList").innerHTML=c.entries.map(e=>`<div class="entry-row ${e.id===entryId?"active":""}">
+ $("entryList").innerHTML=c.entries.map(e=>`<div class="entry-row ${e.id===selectedId?"active":""}">
   <button class="entry-select" onclick="selectEntry('${e.id}')">${esc(e.title||"無題")}</button>
   ${isGuideProject()?"":`<button class="entry-delete" title="ゴミ箱へ移動" onclick="deleteEntry('${e.id}')">×</button>`}
  </div>`).join("")||'<div class="settings-empty">資料はまだありません。「＋ 資料を追加」から作成できます。</div>';
- $("entryEditor").classList.toggle("hidden",!entryId);
+ $("entryEditor").classList.toggle("hidden",!selectedId);
 }
-function selectEntry(id){entryId=id;renderEntryList();renderEntryEditor()}
+function selectEntry(id){setActiveEntryId(id);renderEntryList();renderEntryEditor()}
 function renderEntryEditor(){
  const e=ent(),box=$("entryEditor");
  if(!e){box.classList.add("hidden");box.innerHTML="";return}
@@ -798,9 +908,9 @@ function renderEntryEditor(){
  if(isGuideProject()){
   $("entryTitleInput").readOnly=true;box.querySelectorAll("[data-i]").forEach(el=>el.readOnly=true);return;
  }
- $("entryTitleInput").addEventListener("input",ev=>{e.title=ev.target.value;renderEntryList();renderReferences();scheduleSave()});
+ $("entryTitleInput").addEventListener("input",ev=>{e.title=ev.target.value;renderEntryList();if(!sharedSettingsMode)renderReferences();scheduleSave()});
  box.querySelectorAll("[data-i]").forEach(el=>el.addEventListener("input",()=>{
-  e.fields[+el.dataset.i][el.dataset.k]=el.value;renderReferences();scheduleSave();
+  e.fields[+el.dataset.i][el.dataset.k]=el.value;if(!sharedSettingsMode)renderReferences();scheduleSave();
  }));
 }
 function saveEntry(){
@@ -810,7 +920,7 @@ function saveEntry(){
   const valueInput=$("entryEditor").querySelector(`[data-i="${i}"][data-k="value"]`);
   return{name:nameInput.value,value:valueInput?.value||""};
  });
- renderEntryList();renderEntryEditor();renderReferences();scheduleSave();showToast("設定資料を保存しました");
+ renderEntryList();renderEntryEditor();if(!sharedSettingsMode)renderReferences();scheduleSave();showToast("設定資料を保存しました");
 }
 function addField(){
  if(isGuideProject())return;const e=ent();if(!e)return;
@@ -820,19 +930,18 @@ function removeField(i){
  if(isGuideProject())return;const e=ent();if(!e||!e.fields[i])return;
  confirmAction("この項目をゴミ箱へ移動しますか？",()=>{
   const field=e.fields[i];
-  addToTrash("field",field.name||"設定項目",field,{projectId:projectId,categoryId:categoryId,entryId:entryId,index:i});
-  e.fields.splice(i,1);renderEntryEditor();renderReferences();scheduleSave();
+  addToTrash("field",field.name||"設定項目",field,{shared:sharedSettingsMode,projectId:projectId,categoryId:activeCategoryId(),entryId:activeEntryId(),index:i});
+  e.fields.splice(i,1);renderEntryEditor();if(!sharedSettingsMode)renderReferences();scheduleSave();
   showToast("項目をゴミ箱へ移動しました");
  });
 }
 function deleteEntry(id){
- if(isGuideProject())return;const c=cat();if(!c)return;
- const target=c.entries.find(e=>e.id===id);if(!target)return;
+ if(isGuideProject())return;const c=cat();if(!c)return; const target=c.entries.find(e=>e.id===id);if(!target)return;
  confirmAction("この設定資料をゴミ箱へ移動しますか？",()=>{
   const index=c.entries.findIndex(e=>e.id===id);
-  addToTrash("entry",target.title||"設定資料",target,{projectId:projectId,categoryId:categoryId,index});
-  c.entries=c.entries.filter(e=>e.id!==id);entryId=null;
-  renderEntryList();renderEntryEditor();renderReferences();scheduleSave();
+  addToTrash("entry",target.title||"設定資料",target,{shared:sharedSettingsMode,projectId:projectId,categoryId:activeCategoryId(),index});
+  c.entries=c.entries.filter(e=>e.id!==id);setActiveEntryId(null);
+  renderEntryList();renderEntryEditor();if(!sharedSettingsMode)renderReferences();scheduleSave();
   showToast("設定資料をゴミ箱へ移動しました");
  });
 }
@@ -970,7 +1079,7 @@ $("importFile").addEventListener("change",async ev=>{
 
 /* ゴミ箱 */
 function trashTypeName(type){
- return ({project:"作品",episode:"エピソード",entry:"設定資料",field:"設定項目"})[type]||"データ";
+ return ({project:"作品",episode:"エピソード",category:"カテゴリ",entry:"設定資料",field:"設定項目"})[type]||"データ";
 }
 function openTrash(){
  pruneTrash();
@@ -1019,27 +1128,61 @@ function restoreTrashItem(id){
    const index=Math.min(item.meta?.index??project.episodes.length,project.episodes.length);
    project.episodes.splice(index,0,item.data);restored=true;
   }
+ }else if(item.type==="category"){
+  if(item.meta?.shared){
+   if(!sharedSettings.categories.some(c=>c.id===item.data.id)){
+    const index=Math.min(item.meta?.index??sharedSettings.categories.length,sharedSettings.categories.length);
+    sharedSettings.categories.splice(index,0,item.data);restored=true;
+   }
+  }else{
+   const project=projects.find(x=>x.id===item.meta?.projectId);
+   if(project&&!project.categories.some(c=>c.id===item.data.id)){
+    const index=Math.min(item.meta?.index??project.categories.length,project.categories.length);
+    project.categories.splice(index,0,item.data);restored=true;
+   }
+  }
  }else if(item.type==="entry"){
-  const project=projects.find(x=>x.id===item.meta?.projectId);
-  const category=project?.categories.find(c=>c.id===item.meta?.categoryId);
-  if(category&&!category.entries.some(e=>e.id===item.data.id)){
-   const index=Math.min(item.meta?.index??category.entries.length,category.entries.length);
-   category.entries.splice(index,0,item.data);restored=true;
+  if(item.meta?.shared){
+   const category=sharedSettings.categories.find(c=>c.id===item.meta?.categoryId);
+   if(category&&!category.entries.some(e=>e.id===item.data.id)){
+    const index=Math.min(item.meta?.index??category.entries.length,category.entries.length);
+    category.entries.splice(index,0,item.data);restored=true;
+   }
+  }else{
+   const project=projects.find(x=>x.id===item.meta?.projectId);
+   const category=project?.categories.find(c=>c.id===item.meta?.categoryId);
+   if(category&&!category.entries.some(e=>e.id===item.data.id)){
+    const index=Math.min(item.meta?.index??category.entries.length,category.entries.length);
+    category.entries.splice(index,0,item.data);restored=true;
+   }
   }
  }else if(item.type==="field"){
-  const project=projects.find(x=>x.id===item.meta?.projectId);
-  const category=project?.categories.find(c=>c.id===item.meta?.categoryId);
-  const entry=category?.entries.find(e=>e.id===item.meta?.entryId);
-  if(entry){
-   const index=Math.min(item.meta?.index??entry.fields.length,entry.fields.length);
-   entry.fields.splice(index,0,item.data);restored=true;
+  if(item.meta?.shared){
+   const category=sharedSettings.categories.find(c=>c.id===item.meta?.categoryId);
+   const entry=category?.entries.find(e=>e.id===item.meta?.entryId);
+   if(entry){
+    const index=Math.min(item.meta?.index??entry.fields.length,entry.fields.length);
+    entry.fields.splice(index,0,item.data);restored=true;
+   }
+  }else{
+   const project=projects.find(x=>x.id===item.meta?.projectId);
+   const category=project?.categories.find(c=>c.id===item.meta?.categoryId);
+   const entry=category?.entries.find(e=>e.id===item.meta?.entryId);
+   if(entry){
+    const index=Math.min(item.meta?.index??entry.fields.length,entry.fields.length);
+    entry.fields.splice(index,0,item.data);restored=true;
+   }
   }
  }
  if(!restored){
   showToast("復元先が見つからないか、同じデータが存在します");return;
  }
- trash=trash.filter(t=>t.id!==id);saveTrash();save();renderTrashList();renderHome();
- if(projectId&&p()){
+ trash=trash.filter(t=>t.id!==id);saveTrash();
+ if(item.meta?.shared){saveSharedSettings();if(sharedSettingsMode)renderCategories();}
+ else save();
+ renderTrashList();
+ if(!item.meta?.shared||!sharedSettingsMode)renderHome();
+ if(projectId&&p()&&!item.meta?.shared){
   renderEpisodes();renderCategories();renderReferences();renderMemo();
  }
  showToast("データを復元しました");
@@ -1093,6 +1236,7 @@ function handleShortcut(event){
 document.addEventListener("keydown",handleShortcut);
 window.addEventListener("beforeunload",()=>{
  try{localStorage.setItem(KEY,JSON.stringify(projects))}catch{}
+ try{localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings))}catch{}
 });
 
 /* 起動 */
