@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<title>Write-novel v1.4</title>
+<title>Write-novel v1.5</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -185,7 +185,7 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.4</span></div>
+  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.5</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -440,7 +440,7 @@ function scheduleSave(){
 function p(){return projects.find(x=>x.id===projectId)}
 function ep(){return p()?.episodes.find(x=>x.id===episodeId)}
 function cat(){return activeCategories().find(x=>x.id===activeCategoryId())}
-function ent(){return cat()?.entries.find(x=>x.id===activeEntryId())}
+function ent(){return cat()?.entries.find(e=>e.id===activeEntryId())}
 function isGuideProject(){return !sharedSettingsMode&&projectId===GUIDE_ID}
 
 /* 新規作品 */
@@ -728,6 +728,7 @@ function returnToHome(){
  if($("modalRoot"))$("modalRoot").innerHTML="";
  if($("toastRoot"))$("toastRoot").innerHTML="";
  renderHome();
+ startIntro();
 }
 function openSharedSettings(fromHome=false){
  if(sharedSettingsMode)return;
@@ -1262,18 +1263,25 @@ renderHome();
 updateTrashCount();
 
 /* オープニング */
+let introTimers=[];
 function startIntro(){
  const screen=$("introScreen"),title=$("introTitle");if(!screen||!title)return;
+ introTimers.forEach(timer=>clearTimeout(timer));introTimers=[];
+ screen.classList.remove("is-hidden","is-zooming");
+ title.textContent="";
+ /* 既存のズーム状態を確実に解除してから、同じ演出を再生する */
+ void screen.offsetWidth;
  const name="Write-novel";
  const reducedMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
  let index=0;
+ function later(callback,delay){introTimers.push(setTimeout(callback,delay));}
+ function finish(){screen.classList.add("is-hidden");screen.classList.remove("is-zooming");}
  function typeNext(){
-  if(index<name.length){title.textContent+=name[index++];setTimeout(typeNext,reducedMotion?35:105);return}
-  setTimeout(()=>{
+  if(index<name.length){title.textContent+=name[index++];later(typeNext,reducedMotion?35:105);return}
+  later(()=>{
    screen.classList.add("is-zooming");
-   const finish=()=>screen.classList.add("is-hidden");
    title.addEventListener("animationend",finish,{once:true});
-   setTimeout(finish,reducedMotion?350:1100);
+   later(finish,reducedMotion?350:1100);
   },reducedMotion?180:500);
  }
  typeNext();
