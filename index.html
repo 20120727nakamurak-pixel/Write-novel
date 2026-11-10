@@ -36,9 +36,10 @@ h1{font-size:24px;font-weight:650;letter-spacing:-.4px;margin-bottom:6px}
 h2{font-size:18px;font-weight:650;margin-bottom:0}
 h3{font-size:14px;font-weight:650;margin-bottom:0}
 .topbar{height:58px;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px}
-.brand{font-family:Georgia,serif;font-size:20px;font-weight:bold;letter-spacing:-.5px;color:var(--accent-dark);border:0;background:transparent;padding:0;border-radius:0;cursor:pointer}
-.brand:hover{background:transparent}
-.brand:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:3px}
+.brand{font-family:Georgia,serif;font-size:20px;font-weight:bold;letter-spacing:-.5px;color:var(--accent-dark)}
+.brand-button{border:0;background:transparent;padding:0;color:inherit;font:inherit;letter-spacing:inherit;border-radius:4px}
+.brand-button:hover{background:transparent;color:var(--accent)}
+.brand-button:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .brand span{font-family:system-ui,sans-serif;font-size:10px;color:var(--muted);font-weight:500;letter-spacing:1px;margin-left:7px}
 #saveStatus{font-size:12px;color:var(--muted)}
 main{max-width:1500px;margin:auto;padding:25px}
@@ -184,7 +185,7 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <button class="brand" type="button" aria-label="Write-novel ホームへ戻る" onclick="returnToHome()">Write-novel <span>v1.4</span></button>
+  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.4</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -247,7 +248,8 @@ mark{background:#e8dfb8;color:inherit}
         <span id="episodeSaveStatus">自動保存</span>
       </div>
     </section>
-      <aside id="referencePanel" class="panel reference-panel hidden">
+
+    <aside id="referencePanel" class="panel reference-panel hidden">
       <div class="panel-head">
         <div class="reference-tabs">
           <button id="refSettingsTab" class="active" onclick="switchReferenceTab('settings')">設定検索</button>
@@ -564,7 +566,7 @@ Write-novelは、小説の執筆と作品資料の管理をひとつにまとめ
 参照パネル切替：⌘ + ⇧ + R
 ショートカット一覧：⌘ + ⇧ + K
 
-⌘ + ⇧ + ↑ / ↓ は文章選択などOS標準の操作に任せるため、アプリ側では使用しません。`}
+ブラウザやOSの標準操作と競合する場合があります。`}
  ];
  return {
   id:GUIDE_ID,name:"Write-novelの使い方",createdAt:timestamp(),isGuide:true,
@@ -647,7 +649,7 @@ function renderHome(){
    if(overflow>10){
     el.classList.add("is-marquee");
     span.style.setProperty("--marquee-distance",`${-overflow}px`);
-        }
+   }
   });
  });
  updateTrashCount();
@@ -711,34 +713,21 @@ function showHome(){
  if(sharedSettingsMode){sharedSettingsMode=false;saveSharedSettings();}
  saveEditor(false);save();renderHome();
 }
-
-/* ロゴからホームへ戻る：入力を保存して一時的な画面状態だけを初期化 */
 function returnToHome(){
- clearTimeout(saveTimer);saveTimer=null;
+ if(saveTimer){clearTimeout(saveTimer);saveTimer=null;}
  if(!sharedSettingsMode)saveEditor(false);
  save();
  if(sharedSettingsMode)saveSharedSettings();
- if(historyData&&Object.keys(historyData).length){
+ if(Object.keys(historyData).length){
   try{localStorage.setItem(BACKUP_KEY,JSON.stringify(historyData))}catch{}
  }
-
- sharedSettingsMode=false;
- sharedReturnToHome=false;sharedReturnTab="writing";
+ sharedSettingsMode=false;sharedReturnToHome=false;sharedReturnTab="writing";
  sharedCategoryId=null;sharedEntryId=null;
- projectId=null;episodeId=null;categoryId=null;entryId=null;
  referenceOpen=false;referenceTab="settings";referenceEpisodeId=null;
-
- $("sharedSettingsBar").classList.add("hidden");
- $("workspace").querySelector(".tabs").classList.remove("hidden");
- $("sharedSettingsButton").classList.remove("hidden");
- $("referenceToggle").classList.remove("hidden");
- $("referencePanel").classList.add("hidden");
- $("modalRoot").innerHTML="";
- $("toastRoot").innerHTML="";
- $("importFile").value="";
- switchReferenceTab("settings");
+ if($("referencePanel"))$("referencePanel").classList.add("hidden");
+ if($("modalRoot"))$("modalRoot").innerHTML="";
+ if($("toastRoot"))$("toastRoot").innerHTML="";
  renderHome();
- $("saveStatus").textContent="保存済み";
 }
 function openSharedSettings(fromHome=false){
  if(sharedSettingsMode)return;
@@ -972,7 +961,7 @@ function deleteEntry(id){
   addToTrash("entry",target.title||"設定資料",target,{shared:sharedSettingsMode,projectId:projectId,categoryId:activeCategoryId(),index});
   c.entries=c.entries.filter(e=>e.id!==id);setActiveEntryId(null);
   renderEntryList();renderEntryEditor();if(!sharedSettingsMode)renderReferences();scheduleSave();
-     showToast("設定資料をゴミ箱へ移動しました");
+  showToast("設定資料をゴミ箱へ移動しました");
  });
 }
 
@@ -1245,7 +1234,7 @@ function openShortcuts(){
  <tr><td>新規エピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>Enter</kbd></td></tr>
  <tr><td>参照パネル切替</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>R</kbd></td></tr>
  <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
- </table><p class="muted">⌘ + ⇧ + ↑ / ↓ は文章選択などOS標準の操作に任せるため、アプリ側では使用しません。</p>`,()=>false,null);
+ </table><p class="muted">⌘ + ⇧ + ↑ / ↓ はOS側の文字選択操作と競合するため、アプリのショートカットには設定していません。</p>`,()=>false,null);
 }
 function moveEpisode(delta){
  const x=p();if(!x)return;const i=x.episodes.findIndex(e=>e.id===episodeId),next=i+delta;
