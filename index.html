@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<title>Write-novel v1.5</title>
+<title>Write-novel v1.6</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -185,7 +185,7 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.5</span></div>
+  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.6</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -357,7 +357,6 @@ function load(){
   return [];
  }catch{return []}
 }
-
 function loadTrash(){
  try{
   const data=JSON.parse(localStorage.getItem(TRASH_KEY)||"[]");
@@ -1242,14 +1241,28 @@ function moveEpisode(delta){
  if(next<0||next>=x.episodes.length)return;selectEpisode(x.episodes[next].id);
 }
 function handleShortcut(event){
- if(!event.metaKey)return;const key=event.key.toLowerCase();
- if(key==="s"){event.preventDefault();if(!isGuideProject()){saveEditor(false);save();showToast("保存しました")}return}
- if(event.shiftKey&&key==="f"){event.preventDefault();openGlobalSearch();return}
- if(event.shiftKey&&key==="enter"){event.preventDefault();addEpisode();return}
- if(event.shiftKey&&key==="r"){event.preventDefault();toggleReference();return}
- if(event.shiftKey&&key==="k"){event.preventDefault();openShortcuts()}
+ if(!event.metaKey)return;
+ const key=event.key.toLowerCase();
+ let action=null;
+ if(key==="s"){
+  action=()=>{if(!isGuideProject()){saveEditor(false);save();showToast("保存しました")}};
+ }else if(event.shiftKey&&key==="f"){
+  action=()=>openGlobalSearch();
+ }else if(event.shiftKey&&key==="enter"){
+  action=()=>addEpisode();
+ }else if(event.shiftKey&&key==="r"){
+  action=()=>toggleReference();
+ }else if(event.shiftKey&&key==="k"){
+  action=()=>openShortcuts();
+ }
+ if(!action)return;
+ /* ショートカットを入力欄へ伝播させず、文字の誤入力を防ぐ */
+ event.preventDefault();
+ event.stopPropagation();
+ event.stopImmediatePropagation();
+ action();
 }
-document.addEventListener("keydown",handleShortcut);
+document.addEventListener("keydown",handleShortcut,true);
 window.addEventListener("beforeunload",()=>{
  try{localStorage.setItem(KEY,JSON.stringify(projects))}catch{}
  try{localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings))}catch{}
