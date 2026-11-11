@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<title>Write-novel v1.6</title>
+<title>Write-novel v1.7</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -68,8 +68,10 @@ main{max-width:1500px;margin:auto;padding:25px}
 .panel-head{padding:11px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .panel-body{padding:11px;overflow:auto;min-height:0}
 .episode-list{display:flex;flex-direction:column;gap:5px}
-.episode-item{display:flex;gap:4px}
-.episode-item button:first-child{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.episode-item{display:flex;gap:4px;position:relative;touch-action:pan-y}
+.episode-item.is-dragging{opacity:.45}
+.episode-item.drag-target{outline:2px dashed var(--accent);outline-offset:2px}
+.episode-item button:first-child{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:none;-webkit-user-select:none;touch-action:none}
 .selected{background:var(--soft);color:var(--accent-dark);border-color:#d5ddc9}
 .editor{display:flex;flex-direction:column;min-height:0}
 #episodeTitle{font-size:20px;font-weight:700;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:15px;background:var(--paper)}
@@ -185,7 +187,7 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.6</span></div>
+  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.7</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -790,12 +792,75 @@ $("bodyEditor").addEventListener("input",()=>saveEditor());
 
 function renderEpisodes(){
  const x=p();if(!x)return;
- $("episodeList").innerHTML=x.episodes.map(e=>`<div class="episode-item">
+ $("episodeList").innerHTML=x.episodes.map(e=>`<div class="episode-item" data-episode-id="${e.id}">
   <button class="${e.id===episodeId?"selected":""}" onclick="selectEpisode('${e.id}')">${esc(e.title||"無題")}</button>
   ${isGuideProject()?"":`<button title="ゴミ箱へ移動" onclick="deleteEpisode('${e.id}')">×</button>`}
  </div>`).join("");
+ enableEpisodeReordering();
 }
+function enableEpisodeReordering(){
+ const list=$("episodeList");
+ if(list.dataset.reorderReady==="1")return;
+ list.dataset.reorderReady="1";
+ let pressTimer=null,dragging=null,pointerId=null,startX=0,startY=0,moved=false;
+ const clearDrag=()=>{
+  if(pressTimer)clearTimeout(pressTimer);
+  pressTimer=null;
+  if(dragging){
+   dragging.classList.remove("is-dragging");
+   list.querySelectorAll(".drag-target").forEach(el=>el.classList.remove("drag-target"));
+  }
+  dragging=null;pointerId=null;moved=false;
+ };
+ list.addEventListener("pointerdown",event=>{
+  const handle=event.target.closest(".episode-item button:first-child");
+  if(!handle||isGuideProject())return;
+  const item=handle.closest(".episode-item");
+  if(!item)return;
+  startX=event.clientX;startY=event.clientY;moved=false;pointerId=event.pointerId;
+  pressTimer=setTimeout(()=>{
+   dragging=item;dragging.classList.add("is-dragging");
+   try{handle.setPointerCapture(pointerId)}catch{}
+  },380);
+ });
+ list.addEventListener("pointermove",event=>{
+  if(pointerId!==event.pointerId)return;
+  if(!dragging){
+   if(Math.hypot(event.clientX-startX,event.clientY-startY)>12){
+    if(pressTimer)clearTimeout(pressTimer);
+    pressTimer=null;
+   }
+   return;
+  }
+  event.preventDefault();moved=true;
+  const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".episode-item");
+  list.querySelectorAll(".drag-target").forEach(el=>el.classList.remove("drag-target"));
+  if(!target||target===dragging)return;
+  target.classList.add("drag-target");
+  const horizontal=getComputedStyle(list).flexDirection==="row";
+  const rect=target.getBoundingClientRect();
+  const before=horizontal?event.clientX<rect.left+rect.width/2:event.clientY<rect.top+rect.height/2;
+  if(before)list.insertBefore(dragging,target);
+  else list.insertBefore(dragging,target.nextSibling);
+ });
+ const finish=()=>{
+  if(!dragging){clearDrag();return}
+  const ordered=[...list.querySelectorAll(".episode-item")].map(el=>el.dataset.episodeId);
+  const x=p();
+  if(x&&!isGuideProject()&&ordered.length===x.episodes.length){
+   const byId=new Map(x.episodes.map(e=>[e.id,e]));
+   x.episodes=ordered.map(id=>byId.get(id)).filter(Boolean);
+   saveEditor(false);save();renderEpisodes();renderReferenceEpisodeOptions();
+   showToast("エピソードの順番を保存しました");
+  }
+  clearDrag();
+ };
+ list.addEventListener("pointerup",event=>{if(pointerId===event.pointerId)finish()});
+ list.addEventListener("pointercancel",event=>{if(pointerId===event.pointerId)clearDrag()});
+}
+
 function selectEpisode(id){
+ enableEpisodeReordering();
  saveEditor(false);episodeId=id;loadEditor();renderEpisodes();renderMemo();renderReferenceEpisodeOptions();scheduleSave();
 }
 function addEpisode(){
@@ -1233,8 +1298,38 @@ function openShortcuts(){
  <tr><td>横断検索</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>F</kbd></td></tr>
  <tr><td>新規エピソード</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>Enter</kbd></td></tr>
  <tr><td>参照パネル切替</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>R</kbd></td></tr>
+ <tr><td>なろう形式ルビ</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>1</kbd></td></tr>
+ <tr><td>なろう形式傍点</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>2</kbd></td></tr>
+ <tr><td>カクヨム形式ルビ</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>3</kbd></td></tr>
+ <tr><td>カクヨム形式傍点</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>4</kbd></td></tr>
  <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
  </table><p class="muted">⌘ + ⇧ + ↑ / ↓ はOS側の文字選択操作と競合するため、アプリのショートカットには設定していません。</p>`,()=>false,null);
+}
+function openFormatInput(format){
+ if(isGuideProject()||$("writingView").classList.contains("hidden"))return;
+ const editor=$("bodyEditor");
+ const start=editor.selectionStart,end=editor.selectionEnd;
+ const formats={
+  narouRuby:{title:"なろう形式ルビ",needsRuby:true,build:(base,ruby)=>`|${base}(${ruby})`},
+  narouDots:{title:"なろう形式傍点",needsRuby:false,build:base=>`|${base}(${Array.from(base).map(()=> "・").join("")})`},
+  kakuyomuRuby:{title:"カクヨム形式ルビ",needsRuby:true,build:(base,ruby)=>`|${base}《${ruby}》`},
+  kakuyomuDots:{title:"カクヨム形式傍点",needsRuby:false,build:base=>`《《${base}》》`}
+ };
+ const config=formats[format];if(!config)return;
+ const fields=`<label>媒体文字<input id="formatBase" type="text" autocomplete="off" placeholder="例：如月"></label>
+ ${config.needsRuby?`<label style="display:block;margin-top:12px">ルビ文字<input id="formatRuby" type="text" autocomplete="off" placeholder="例：キサラギ"></label>`:""}`;
+ showModal(config.title,fields,()=>{
+  const base=$("formatBase").value;
+  const ruby=config.needsRuby?$("formatRuby").value:"";
+  if(!base.trim()||(config.needsRuby&&!ruby.trim())){
+   showToast("必要な文字を入力してください");return false;
+  }
+  const text=config.needsRuby?config.build(base,ruby):config.build(base);
+  editor.focus();
+  editor.setRangeText(text,start,end,"end");
+  saveEditor();
+  return true;
+ },"挿入");
 }
 function moveEpisode(delta){
  const x=p();if(!x)return;const i=x.episodes.findIndex(e=>e.id===episodeId),next=i+delta;
@@ -1254,6 +1349,14 @@ function handleShortcut(event){
   action=()=>toggleReference();
  }else if(event.shiftKey&&key==="k"){
   action=()=>openShortcuts();
+ }else if(event.shiftKey&&event.code==="Digit1"){
+  action=()=>openFormatInput("narouRuby");
+ }else if(event.shiftKey&&event.code==="Digit2"){
+  action=()=>openFormatInput("narouDots");
+ }else if(event.shiftKey&&event.code==="Digit3"){
+  action=()=>openFormatInput("kakuyomuRuby");
+ }else if(event.shiftKey&&event.code==="Digit4"){
+  action=()=>openFormatInput("kakuyomuDots");
  }
  if(!action)return;
  /* ショートカットを入力欄へ伝播させず、文字の誤入力を防ぐ */
