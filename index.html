@@ -567,6 +567,10 @@ Write-novelは、小説の執筆と作品資料の管理をひとつにまとめ
 横断検索：⌘ + ⇧ + F
 新規エピソード：⌘ + ⇧ + Enter
 参照パネル切替：⌘ + ⇧ + R
+なろう形式ルビ：⌘ + ⇧ + 1
+なろう形式傍点：⌘ + ⇧ + 2
+カクヨム形式ルビ：⌘ + ⇧ + 5
+カクヨム形式傍点：⌘ + ⇧ + 6
 ショートカット一覧：⌘ + ⇧ + K
 
 ブラウザやOSの標準操作と競合する場合があります。`}
@@ -1361,7 +1365,6 @@ function openShortcuts(){
  <tr><td>カクヨム形式ルビ</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>5</kbd></td></tr>
  <tr><td>カクヨム形式傍点</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>6</kbd></td></tr>
  <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
- </table><p class="muted">⌘ + ⇧ + ↑ / ↓ はOS側の文字選択操作と競合するため、アプリのショートカットには設定していません。</p>`,()=>false,null);
 }
 function openFormatInput(format){
  if(isGuideProject()||$("writingView").classList.contains("hidden"))return;
