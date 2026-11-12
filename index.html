@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<title>Write-novel v1.7.5</title>
+<title>Write-novel v1.8</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -103,7 +103,9 @@ main{max-width:1500px;margin:auto;padding:25px}
 .settings-main-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid var(--line)}
 .settings-main-head h2{font-size:17px}
 .entry-list{padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px}
-.entry-row{display:flex;align-items:center;gap:5px;padding:5px;border:1px solid var(--line);border-radius:8px;background:#fffefa;min-width:0}
+.entry-row{display:flex;align-items:center;gap:5px;padding:5px;border:1px solid var(--line);border-radius:8px;background:#fffefa;min-width:0;touch-action:pan-y;transition:transform .16s ease,opacity .16s ease,border-color .16s ease}
+.entry-row.swipe-moving{opacity:.72;border-color:var(--accent);transition:none}
+.entry-row .entry-select{touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .entry-row.active{border-color:#b8c5aa;background:var(--soft)}
 .entry-row .entry-select{flex:1;min-width:0;text-align:left;border:0;background:transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .entry-row .entry-select:hover{background:transparent}
@@ -187,7 +189,7 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.7.5</span></div>
+  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.8</span></div>
   <div id="saveStatus">保存済み</div>
 </header>
 
@@ -968,11 +970,67 @@ function addEntry(){
 function renderEntryList(){
  const c=cat(),selectedId=activeEntryId();$("settingsHeading").textContent=c?.name||"設定資料";
  if(!c){$("entryList").innerHTML='<div class="settings-empty">カテゴリを選択してください。</div>';$("entryEditor").classList.add("hidden");return}
- $("entryList").innerHTML=c.entries.map(e=>`<div class="entry-row ${e.id===selectedId?"active":""}">
+ $("entryList").innerHTML=c.entries.map(e=>`<div class="entry-row ${e.id===selectedId?"active":""}" data-entry-id="${e.id}" title="左右にスワイプして並び替え">
   <button class="entry-select" onclick="selectEntry('${e.id}')">${esc(e.title||"無題")}</button>
   ${isGuideProject()?"":`<button class="entry-delete" title="ゴミ箱へ移動" onclick="deleteEntry('${e.id}')">×</button>`}
  </div>`).join("")||'<div class="settings-empty">資料はまだありません。「＋ 資料を追加」から作成できます。</div>';
  $("entryEditor").classList.toggle("hidden",!selectedId);
+ enableEntrySwipeReordering();
+}
+let entrySwipeState=null;
+let suppressEntryClickUntil=0;
+function enableEntrySwipeReordering(){
+ const list=$("entryList");
+ if(list.dataset.swipeReady==="1")return;
+ list.dataset.swipeReady="1";
+ list.addEventListener("pointerdown",event=>{
+  const row=event.target.closest(".entry-row");
+  if(!row||event.target.closest(".entry-delete")||isGuideProject())return;
+  entrySwipeState={id:row.dataset.entryId,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,horizontal:false};
+ });
+ document.addEventListener("pointermove",event=>{
+  const state=entrySwipeState;
+  if(!state||event.pointerId!==state.pointerId)return;
+  const dx=event.clientX-state.startX,dy=event.clientY-state.startY;
+  if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.2){
+   state.horizontal=true;
+   const row=[...list.querySelectorAll(".entry-row")].find(el=>el.dataset.entryId===state.id);
+   if(row){row.classList.add("swipe-moving");row.style.transform=`translateX(${dx}px)`}
+   event.preventDefault();
+  }
+ },{passive:false});
+ document.addEventListener("pointerup",event=>{
+  const state=entrySwipeState;
+  if(!state||event.pointerId!==state.pointerId)return;
+  entrySwipeState=null;
+  const dx=event.clientX-state.startX,dy=event.clientY-state.startY;
+  const row=[...list.querySelectorAll(".entry-row")].find(el=>el.dataset.entryId===state.id);
+  if(row){row.classList.remove("swipe-moving");row.style.transform=""}
+  if(state.horizontal&&Math.abs(dx)>=45&&Math.abs(dx)>Math.abs(dy)*1.2){
+   suppressEntryClickUntil=Date.now()+450;
+   reorderEntryBySwipe(state.id,dx<0?1:-1);
+  }
+ },true);
+ document.addEventListener("pointercancel",event=>{
+  if(!entrySwipeState||event.pointerId!==entrySwipeState.pointerId)return;
+  const state=entrySwipeState;entrySwipeState=null;
+  const row=[...list.querySelectorAll(".entry-row")].find(el=>el.dataset.entryId===state.id);
+  if(row){row.classList.remove("swipe-moving");row.style.transform=""}
+ },true);
+ list.addEventListener("click",event=>{
+  if(Date.now()<suppressEntryClickUntil&&event.target.closest(".entry-select")){
+   event.preventDefault();event.stopPropagation();
+  }
+ },true);
+}
+function reorderEntryBySwipe(id,direction){
+ if(isGuideProject())return;
+ const c=cat();if(!c)return;
+ const index=c.entries.findIndex(e=>e.id===id),next=index+direction;
+ if(index<0||next<0||next>=c.entries.length){showToast(direction<0?"これ以上前には移動できません":"これ以上後ろには移動できません");return}
+ [c.entries[index],c.entries[next]]=[c.entries[next],c.entries[index]];
+ renderEntryList();scheduleSave();
+ showToast("資料の順番を変更しました");
 }
 function selectEntry(id){setActiveEntryId(id);renderEntryList();renderEntryEditor()}
 function renderEntryEditor(){
