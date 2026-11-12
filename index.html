@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
   <link rel="manifest" href="./manifest.json">
-</head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4efe6">
@@ -1364,10 +1363,11 @@ function openShortcuts(){
  <tr><td>なろう形式傍点</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>2</kbd></td></tr>
  <tr><td>カクヨム形式ルビ</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>5</kbd></td></tr>
  <tr><td>カクヨム形式傍点</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>6</kbd></td></tr>
- <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
+  <tr><td>ショートカット一覧</td><td><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>K</kbd></td></tr>
+ </table>`,()=>false,null);
 }
 function openFormatInput(format){
- if(isGuideProject()||$("writingView").classList.contains("hidden"))return;
+if(isGuideProject()||$("writingView").classList.contains("hidden"))return;
  const editor=$("bodyEditor");
  const start=editor.selectionStart,end=editor.selectionEnd;
  const formats={
