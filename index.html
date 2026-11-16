@@ -386,15 +386,13 @@ function loadSharedSettings(){
 function saveSharedSettings(){
  try{
   localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings));
-   try{
-  localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings));
   $("saveStatus").textContent="共有設定を保存済み";
  }catch{
   $("saveStatus").textContent="保存失敗";
   alert("共有設定の保存領域が不足しています。");
  }
 }
-function activeCategories(){
+  function activeCategories(){
  return sharedSettingsMode?sharedSettings.categories:(p()?.categories||[]);
 }
 function activeCategoryId(){return sharedSettingsMode?sharedCategoryId:categoryId}
