@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <link rel="manifest" href="./manifest.json">
-<title>Write-novel v1.8</title>
+<title>Write-novel v1.9</title>
 <style>
 :root{
   --bg:#f4efe6;--paper:#fffdf8;--panel:#eee6d9;--text:#39362f;
@@ -180,6 +180,8 @@ mark{background:#e8dfb8;color:inherit}
  .trash-row{flex-direction:column}
  .trash-actions{justify-content:flex-start}
 }
+
+.topbar-right{display:flex;align-items:center;gap:12px}.app-settings-view{padding:28px;max-width:1100px;margin:0 auto;overflow:auto;height:calc(100vh - 58px)}.app-settings-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}.app-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.app-setting-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}.app-setting-card h2{margin-bottom:8px}.app-setting-card>label{display:block;margin:18px 0 12px;font-weight:600}.app-setting-card>label input,.app-setting-card>label select{display:block;margin-top:8px}.app-setting-card>label span{float:right;color:var(--muted);font-weight:400}.setting-line{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.setting-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.security-note{margin-top:16px;line-height:1.7}.switch{position:relative;display:inline-block;width:46px;height:26px;flex:none}.switch input{opacity:0;width:0;height:0}.switch span{position:absolute;inset:0;background:#aaa;border-radius:20px;cursor:pointer;transition:.2s}.switch span:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s}.switch input:checked+span{background:var(--accent)}.switch input:checked+span:before{transform:translateX(20px)}.app-lock-screen{position:fixed;inset:0;z-index:10000;background:var(--bg);display:grid;place-items:center;padding:20px}.app-lock-card{width:min(380px,100%);padding:30px;background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);text-align:center}.app-lock-card .brand{margin-bottom:24px}.app-lock-card h1{margin-bottom:8px}.app-lock-card input{margin:18px 0 8px;text-align:center;letter-spacing:.25em}.app-lock-card button{width:100%;margin-top:8px}.lock-error{min-height:18px;color:var(--danger);font-size:12px}body.dark-theme{--bg:#20221f;--paper:#2b2e29;--panel:#353932;--text:#e9e7df;--muted:#aaa99e;--line:#494e45;--accent:#91a47d;--accent-dark:#71865e;--soft:#3a4435;--danger:#d18a80;--shadow:0 3px 14px #0004;color-scheme:dark}body.dark-theme .brand{color:var(--accent)}#bodyEditor{font-size:var(--editor-font-size,16px);line-height:var(--editor-line-height,1.8);font-family:var(--editor-font-family,system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif)}.grid.list-view{display:flex;flex-direction:column;gap:8px}.grid.list-view .card{width:100%;min-height:unset;display:grid;grid-template-columns:minmax(160px,1fr) auto auto auto;align-items:center;gap:12px}.grid.list-view .card h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.grid.list-view .card .actions{margin:0}@media(max-width:700px){.app-settings-view{padding:18px}.app-settings-grid{grid-template-columns:1fr}.app-settings-head{align-items:center}.topbar-right{gap:6px}}
 </style>
 </head>
 <body>
@@ -188,8 +190,8 @@ mark{background:#e8dfb8;color:inherit}
 </div>
 
 <header class="topbar">
-  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.8</span></div>
-  <div id="saveStatus">保存済み</div>
+  <div class="brand"><button class="brand-button" type="button" onclick="returnToHome()">Write-novel</button> <span>v1.9</span></div>
+  <div class="topbar-right"><button id="appSettingsOpen" onclick="openAppSettings()">アプリ設定</button><button id="manualLockButton" class="hidden" onclick="lockApp()">ロック</button><span id="saveStatus">保存済み</span></div>
 </header>
 
 <main id="homeView">
@@ -223,7 +225,6 @@ mark{background:#e8dfb8;color:inherit}
     <button onclick="openShortcuts()">ショートカット</button>
     <button id="trashButton" class="trash-button" onclick="openTrash()">ゴミ箱 <span id="trashCount">0</span></button>
     <button id="exportJSONButton" onclick="exportJSON()">JSON保存</button>
-    <button id="exportTXTButton" onclick="exportTXT()">TXT保存</button>
     <button id="importJSONButton" onclick="$('importFile').click()">JSON読込</button>
     <input id="importFile" type="file" accept=".json,application/json" class="hidden">
   </div>
@@ -319,6 +320,15 @@ mark{background:#e8dfb8;color:inherit}
   </section>
 </section>
 
+<section id="appSettingsView" class="app-settings-view hidden">
+<div class="app-settings-head"><div><h1>アプリ設定</h1><p class="muted">Write-novel全体の動作や表示を設定します。作品ごとのデータには影響しません。</p></div><button onclick="closeAppSettings()">戻る</button></div>
+<div class="app-settings-grid">
+<section class="app-setting-card"><h2>セキュリティ</h2><p class="muted">起動時のパスコードロックを設定できます。</p><div class="setting-line"><div><strong>アプリロック</strong><div class="muted">再読み込み・再起動時にロック画面を表示</div></div><label class="switch"><input id="appLockEnabled" type="checkbox" onchange="toggleAppLock(this.checked)"><span></span></label></div><div class="setting-actions"><button onclick="setAppPasscode()">パスコードを設定・変更</button><button id="removePasscodeButton" class="danger" onclick="removeAppPasscode()">パスコードを解除</button><button onclick="lockApp()">今すぐロック</button></div><p class="muted security-note">※これは画面上のロックです。ブラウザ内に保存された作品データ自体は暗号化されません。</p></section>
+<section class="app-setting-card"><h2>執筆環境</h2><p class="muted">本文エディタの表示を変更します。</p><label>文字サイズ <span id="fontSizeValue">16px</span><input id="appFontSize" type="range" min="12" max="32" value="16" oninput="updateAppSetting('fontSize',Number(this.value))"></label><label>フォント<select id="appFontFamily" onchange="updateAppSetting('fontFamily',this.value)"><option value="system">システム標準</option><option value="serif">明朝体</option><option value="sans">ゴシック体</option></select></label><label>行間 <span id="lineHeightValue">1.8</span><input id="appLineHeight" type="range" min="1" max="3" step="0.1" value="1.8" oninput="updateAppSetting('lineHeight',Number(this.value))"></label></section>
+<section class="app-setting-card"><h2>表示</h2><p class="muted">ホーム画面とアプリ全体の見た目を変更します。</p><label>作品カードの表示形式<select id="appProjectLayout" onchange="updateAppSetting('projectLayout',this.value)"><option value="card">カード形式</option><option value="list">リスト形式</option></select></label><label>テーマ<select id="appTheme" onchange="updateAppSetting('theme',this.value)"><option value="light">ライト</option><option value="dark">ダーク</option></select></label></section>
+<section class="app-setting-card"><h2>その他</h2><p class="muted">アプリ設定のみを初期状態に戻します。作品・エピソード・設定資料・メモは削除されません。</p><button class="danger" onclick="resetAppSettings()">アプリ設定を初期化</button></section>
+</div></section>
+<div id="appLockScreen" class="app-lock-screen hidden"><div class="app-lock-card"><div class="brand">Write-novel</div><h1>ロック中</h1><p class="muted">続けるにはパスコードを入力してください。</p><input id="unlockPasscode" type="password" inputmode="numeric" autocomplete="current-password" placeholder="パスコード" onkeydown="if(event.key==='Enter')unlockApp()"><p id="unlockError" class="lock-error"></p><button class="primary" onclick="unlockApp()">ロック解除</button></div></div>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
 
@@ -375,6 +385,8 @@ function loadSharedSettings(){
 }
 function saveSharedSettings(){
  try{
+  localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings));
+   try{
   localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings));
   $("saveStatus").textContent="共有設定を保存済み";
  }catch{
@@ -440,7 +452,7 @@ function scheduleSave(){
 }
 
 function p(){return projects.find(x=>x.id===projectId)}
-function ep(){return p()?.episodes.find(x=>x.id===episodeId)}
+function ep(){return p()?.episodes.find(e=>e.id===episodeId)}
 function cat(){return activeCategories().find(x=>x.id===activeCategoryId())}
 function ent(){return cat()?.entries.find(e=>e.id===activeEntryId())}
 function isGuideProject(){return !sharedSettingsMode&&projectId===GUIDE_ID}
@@ -550,8 +562,6 @@ Write-novelは、小説の執筆と作品資料の管理をひとつにまとめ
 【JSON保存】
 作品データを書き出します。
 
-【TXT保存】
-エピソードタイトルと本文をテキストとして書き出します。
 
 【JSON読込】
 以前保存した作品データを作品一覧に追加できます。
@@ -658,6 +668,7 @@ function renderHome(){
    }
   });
  });
+ $("projectGrid").classList.toggle("list-view",appSettings.projectLayout==="list");
  updateTrashCount();
 }
 
@@ -694,7 +705,7 @@ function deleteProject(id){
 function setGuideMode(){
  const guide=isGuideProject();
  $("guideNotice").classList.toggle("hidden",!guide);
- ["addEpisodeButton","addCategoryButton","addEntryButton","globalSearchButton","bulkReplaceButton","historyButton","exportJSONButton","exportTXTButton","importJSONButton"].forEach(id=>$(id).classList.toggle("hidden",guide));
+ ["addEpisodeButton","addCategoryButton","addEntryButton","globalSearchButton","bulkReplaceButton","historyButton","exportJSONButton","importJSONButton"].forEach(id=>$(id).classList.toggle("hidden",guide));
  $("episodeTitle").readOnly=guide;$("bodyEditor").readOnly=guide;
  $("projectMemo").readOnly=guide;$("episodeMemo").readOnly=guide;
  $("episodeTitle").placeholder=guide?"ガイドのタイトル":"エピソードタイトル";
@@ -702,6 +713,7 @@ function setGuideMode(){
 }
 
 function openProject(id){
+ $("appSettingsView").classList.add("hidden");
  sharedSettingsMode=false;$("sharedSettingsBar").classList.add("hidden");
  $("workspace").querySelector(".tabs").classList.remove("hidden");
  $("sharedSettingsButton").classList.remove("hidden");
@@ -716,6 +728,7 @@ function openProject(id){
 }
 
 function showHome(){
+ $("appSettingsView").classList.add("hidden");
  if(sharedSettingsMode){sharedSettingsMode=false;saveSharedSettings();}
  saveEditor(false);save();renderHome();
 }
@@ -750,7 +763,7 @@ function openSharedSettings(fromHome=false){
  $("projectName").textContent="全作品共有設定";
  $("workspace").querySelector(".tabs").classList.add("hidden");
  $("sharedSettingsButton").classList.add("hidden");
- ["referenceToggle","globalSearchButton","bulkReplaceButton","historyButton","exportJSONButton","exportTXTButton","importJSONButton"].forEach(id=>$(id).classList.add("hidden"));
+ ["referenceToggle","globalSearchButton","bulkReplaceButton","historyButton","exportJSONButton","importJSONButton"].forEach(id=>$(id).classList.add("hidden"));
  $("trashButton").classList.remove("hidden");
  $("guideNotice").classList.add("hidden");
  $("writingView").classList.add("hidden");$("memoView").classList.add("hidden");$("settingsView").classList.remove("hidden");
@@ -1186,7 +1199,7 @@ function openHistory(){
  render();
 }
 
-/* JSON/TXT */
+/* JSON保存 */
 function download(name,content,type){
  const a=document.createElement("a"),url=URL.createObjectURL(new Blob([content],{type}));
  a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -1195,10 +1208,6 @@ function filename(s){return String(s||"novel").replace(/[\\/:*?"<>|]/g,"_")}
 function exportJSON(){
  if(isGuideProject())return;saveEditor(false);
  download(filename(p().name)+".json",JSON.stringify(p(),null,2),"application/json");
-}
-function exportTXT(){
- if(isGuideProject())return;saveEditor(false);
- download(filename(p().name)+".txt",p().episodes.map(e=>e.title+"\n\n"+e.body).join("\n\n"+"—".repeat(20)+"\n\n"),"text/plain;charset=utf-8");
 }
 function exportFullBackup(){
  saveEditor(false);download("write-novel-backup.json",JSON.stringify({version:4,projects},null,2),"application/json");
@@ -1346,7 +1355,7 @@ function showModal(title,body,onSubmit,submitLabel="保存"){
   <div class="modal-actions"><button id="modalCancel">キャンセル</button>
   ${submitLabel===null?"":`<button class="primary" id="modalSubmit">${esc(submitLabel)}</button>`}</div></div></div>`;
  $("modalCancel").onclick=()=>root.innerHTML="";
- if($("modalSubmit"))$("modalSubmit").onclick=()=>{if(onSubmit()!==false)root.innerHTML=""};
+ if($("modalSubmit"))$("modalSubmit").onclick=async()=>{const result=await onSubmit();if(result!==false)root.innerHTML=""};
  root.querySelector(".modal-bg").addEventListener("click",e=>{if(e.target.classList.contains("modal-bg"))root.innerHTML=""});
 }
 function confirmAction(message,callback){
@@ -1440,6 +1449,30 @@ window.addEventListener("beforeunload",()=>{
  try{localStorage.setItem(KEY,JSON.stringify(projects))}catch{}
  try{localStorage.setItem(SHARED_SETTINGS_KEY,JSON.stringify(sharedSettings))}catch{}
 });
+
+/* アプリ設定 v1.9 */
+const APP_SETTINGS_KEY="write-novel-v19-app-settings",APP_LOCK_KEY="write-novel-v19-app-lock";
+const DEFAULT_APP_SETTINGS={fontSize:16,fontFamily:"system",lineHeight:1.8,projectLayout:"card",theme:"light"};
+let appSettings=loadAppSettings(),appUnlocked=true,appSettingsReturnToWorkspace=false;
+function loadAppSettings(){try{return {...DEFAULT_APP_SETTINGS,...JSON.parse(localStorage.getItem(APP_SETTINGS_KEY)||"{}")}}catch{return {...DEFAULT_APP_SETTINGS}}}
+function saveAppSettings(){try{localStorage.setItem(APP_SETTINGS_KEY,JSON.stringify(appSettings))}catch{showToast("設定を保存できませんでした")}}
+function loadAppLock(){try{return JSON.parse(localStorage.getItem(APP_LOCK_KEY)||"null")}catch{return null}}
+function hasAppLock(){return !!loadAppLock()}
+function applyAppSettings(){document.body.classList.toggle("dark-theme",appSettings.theme==="dark");document.documentElement.style.setProperty("--editor-font-size",appSettings.fontSize+"px");const fonts={system:'system-ui,-apple-system,"Yu Gothic",Meiryo,sans-serif',serif:'"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif',sans:'"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif'};document.documentElement.style.setProperty("--editor-font-family",fonts[appSettings.fontFamily]||fonts.system);document.documentElement.style.setProperty("--editor-line-height",String(appSettings.lineHeight));$("projectGrid")?.classList.toggle("list-view",appSettings.projectLayout==="list")}
+function syncAppSettingsUI(){if(!$('appFontSize'))return;$('appFontSize').value=appSettings.fontSize;$('fontSizeValue').textContent=appSettings.fontSize+"px";$('appFontFamily').value=appSettings.fontFamily;$('appLineHeight').value=appSettings.lineHeight;$('lineHeightValue').textContent=Number(appSettings.lineHeight).toFixed(1);$('appProjectLayout').value=appSettings.projectLayout;$('appTheme').value=appSettings.theme;$('appLockEnabled').checked=hasAppLock();$('removePasscodeButton').disabled=!hasAppLock();$('manualLockButton').classList.toggle("hidden",!hasAppLock())}
+function updateAppSetting(key,value){if(!(key in DEFAULT_APP_SETTINGS))return;appSettings[key]=value;saveAppSettings();applyAppSettings();if(key==="fontSize")$('fontSizeValue').textContent=value+"px";if(key==="lineHeight")$('lineHeightValue').textContent=Number(value).toFixed(1)}
+function openAppSettings(){if(!appUnlocked)return;appSettingsReturnToWorkspace=!$("workspace").classList.contains("hidden");saveEditor(false);$("homeView").classList.add("hidden");$("workspace").classList.add("hidden");$("appSettingsView").classList.remove("hidden");syncAppSettingsUI()}
+function closeAppSettings(){$("appSettingsView").classList.add("hidden");if(appSettingsReturnToWorkspace){$("workspace").classList.remove("hidden")}else{renderHome()}syncAppSettingsUI()}
+function randomBytes(length){const a=new Uint8Array(length);crypto.getRandomValues(a);return a}
+function toBase64(bytes){return btoa(String.fromCharCode(...bytes))}function fromBase64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
+async function hashPasscode(passcode,salt){const material=await crypto.subtle.importKey("raw",new TextEncoder().encode(passcode),"PBKDF2",false,["deriveBits"]);return new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:180000,hash:"SHA-256"},material,256))}
+async function setAppPasscode(){const current=hasAppLock();showModal(current?"パスコード変更":"パスコード設定",`<p class="muted">4〜12桁の数字を入力してください。</p><label>新しいパスコード<input id="newPasscode" type="password" inputmode="numeric" maxlength="12" autocomplete="new-password"></label><label style="display:block;margin-top:12px">確認<input id="confirmPasscode" type="password" inputmode="numeric" maxlength="12" autocomplete="new-password"></label>`,async()=>{const a=$("newPasscode").value,b=$("confirmPasscode").value;if(!/^\d{4,12}$/.test(a)){showToast("4〜12桁の数字を入力してください");return false}if(a!==b){showToast("パスコードが一致しません");return false}if(!crypto?.subtle){showToast("この環境では安全なパスコード処理を利用できません");return false}const salt=randomBytes(16),hash=await hashPasscode(a,salt);localStorage.setItem(APP_LOCK_KEY,JSON.stringify({salt:toBase64(salt),hash:toBase64(hash),iterations:180000}));appUnlocked=true;syncAppSettingsUI();showToast("パスコードを設定しました");return true},"設定する")}
+async function toggleAppLock(enabled){if(enabled){if(!hasAppLock())await setAppPasscode();syncAppSettingsUI()}else if(hasAppLock())removeAppPasscode()}
+function removeAppPasscode(){if(!hasAppLock()){syncAppSettingsUI();return}confirmAction("アプリロックを解除しますか？",()=>{localStorage.removeItem(APP_LOCK_KEY);appUnlocked=true;syncAppSettingsUI();showToast("アプリロックを解除しました")})}
+function lockApp(){if(!hasAppLock())return;saveEditor(false);save();appUnlocked=false;$('appSettingsView').classList.add("hidden");$('homeView').classList.add("hidden");$('workspace').classList.add("hidden");$('appLockScreen').classList.remove("hidden");$('unlockPasscode').value="";$('unlockError').textContent="";setTimeout(()=>$('unlockPasscode').focus(),50)}
+async function unlockApp(){const record=loadAppLock();if(!record){appUnlocked=true;$('appLockScreen').classList.add("hidden");$('homeView').classList.remove("hidden");return}const value=$('unlockPasscode').value;if(!/^\d{4,12}$/.test(value)){$('unlockError').textContent="パスコードを入力してください。";return}try{const actual=await hashPasscode(value,fromBase64(record.salt)),expected=fromBase64(record.hash);let diff=actual.length^expected.length;for(let i=0;i<Math.min(actual.length,expected.length);i++)diff|=actual[i]^expected[i];if(diff!==0){$('unlockError').textContent="パスコードが違います。";$('unlockPasscode').value="";return}appUnlocked=true;$('appLockScreen').classList.add("hidden");if(projectId&&!sharedSettingsMode)$('workspace').classList.remove("hidden");else $('homeView').classList.remove("hidden");showToast("ロックを解除しました")}catch{$('unlockError').textContent="認証に失敗しました。もう一度お試しください。"}}
+function resetAppSettings(){confirmAction("アプリ設定を初期化しますか？パスコードも解除されます。作品データやメモは削除されません。",()=>{appSettings={...DEFAULT_APP_SETTINGS};saveAppSettings();localStorage.removeItem(APP_LOCK_KEY);appUnlocked=true;applyAppSettings();syncAppSettingsUI();showToast("アプリ設定を初期化しました")})}
+applyAppSettings();if(hasAppLock()){appUnlocked=false;$('appLockScreen').classList.remove("hidden");$('homeView').classList.add("hidden");$('workspace').classList.add("hidden")}syncAppSettingsUI();
 
 /* 起動 */
 ensureGuideProject();
